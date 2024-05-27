@@ -1,4 +1,5 @@
 #Smidig Gruppe Halley
+#endring 1
 
 import tkinter as tk
 
