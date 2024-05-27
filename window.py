@@ -1,3 +1,5 @@
+#Smidig Gruppe Halley
+
 import tkinter as tk
 
 
@@ -8,3 +10,4 @@ label = tk.Label(root, text="Hello world!")
 label.pack()
 
 root.mainloop()
+
