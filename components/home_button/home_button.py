@@ -1,34 +1,22 @@
 import tkinter as tk
 from PIL import Image, ImageTk
+import os
 
-def button_clicked():
-    print("Button clicked!")
+def create_home_button(root, initialize_main_ui):
+    # Load and resize the home icon
+    current_dir = os.path.dirname(__file__)
+    icon_path = os.path.join(current_dir, "home_icon.png")
+    icon_image = Image.open(icon_path)
+    icon_image = icon_image.resize((30, 30), Image.LANCZOS)  # Resize to 30x30 pixels
+    icon = ImageTk.PhotoImage(icon_image)
 
-root = tk.Tk()
+    # Create the button with the resized image
+    home_button = tk.Button(root, image=icon, command=lambda: redirect_to_main_page(root, initialize_main_ui),
+                            bg="#2e2e2e", borderwidth=0)
+    home_button.image = icon  # Keep a reference to the image to prevent garbage collection
+    home_button.place(x=10, y=10)  # Place the button in the top left corner
 
-# Load the image
-original_image = Image.open("home_icon.png")
-
-# Calculate new dimensions
-width, height = original_image.size
-new_width = int(width * 0.15)
-new_height = int(height * 0.15)
-
-# Resize the image
-resized_image = original_image.resize((new_width, new_height), Image.ANTIALIAS)
-
-# Convert the resized image to Tkinter PhotoImage
-tk_image = ImageTk.PhotoImage(resized_image)
-
-# Creating a button with the resized image
-button = tk.Button(root,
-                   image=tk_image,
-                   command=button_clicked,
-                   bd=0,  # No border
-                   bg="#a9dfd8",
-                   cursor="hand2")
-
-# Place the button at the top left corner of the screen
-button.place(x=0, y=0)
-
-root.mainloop()
+def redirect_to_main_page(root, initialize_main_ui):
+    for widget in root.winfo_children():
+        widget.destroy()
+    initialize_main_ui(root)  # Reinitialize the main UI components
