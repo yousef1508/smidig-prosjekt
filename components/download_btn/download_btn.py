@@ -1,4 +1,4 @@
-# components/download_btn/download.py
+# components/download_btn/download_btn.py
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
