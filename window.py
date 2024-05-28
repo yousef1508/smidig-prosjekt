@@ -1,16 +1,10 @@
 import tkinter as tk
 from components.download_btn.download import create_save_button
-
+from components.home_button.home_button import create_home_button
 
 def main():
     root = tk.Tk()
     root.title("Tkinter Example")
-
-    bg_color = "#2e2e2e"
-    root.configure(bg=bg_color)
-
-    label = tk.Label(root, text="Hello, Tkinter!", fg="white", bg=bg_color, font=("Roboto", 16, "bold"))
-    label.pack(pady=20)
 
     width_percentage = 0.7
     height_percentage = 0.7
@@ -26,11 +20,23 @@ def main():
 
     root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
-    # Create the save button using the download component
-    create_save_button(root)
+    # Initialize the main UI components
+    initialize_main_ui(root)
 
     root.mainloop()
 
+def initialize_main_ui(root):
+    bg_color = "#2e2e2e"
+    root.configure(bg=bg_color)
+
+    label = tk.Label(root, text="Hello, Tkinter!", fg="white", bg=bg_color)
+    label.pack(pady=20)
+
+    # Create the save button using the download component
+    create_save_button(root)
+
+    # Create the home button using the home button component
+    create_home_button(root, initialize_main_ui)
 
 if __name__ == "__main__":
     main()
