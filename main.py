@@ -1,7 +1,7 @@
 import tkinter as tk
 from components.download_btn.download import create_save_button
 from components.home_button.home_button import create_home_button
-from components.analyze_button.analyzebutton import create_analysis_widgets  # Import the analyze component
+from components.analyze_button.analyzebutton import create_analysis_widgets
 
 def main():
     root = tk.Tk()
