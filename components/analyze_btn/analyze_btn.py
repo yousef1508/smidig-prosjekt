@@ -1,9 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
 
-def analyze():
+def analyze(uploaded_file):
     """This function is executed when the 'Analyze' button is clicked."""
-    print("Analyzing...")
+    if uploaded_file:
+        print(f"Analyzing file: {uploaded_file}")
+        # Add the analysis logic here
+    else:
+        print("No file uploaded.")
 
 def on_enter(event):
     event.widget.config(bg="#c3e4ed")  # Change to a lighter color to simulate glow
@@ -14,7 +18,7 @@ def on_leave(event):
 def on_click(event):
     event.widget.config(bg="white", fg="black")  # Change color to white on click
 
-def create_analysis_widgets(parent):
+def create_analysis_widgets(parent, get_uploaded_file):
     """Create and place the Combobox and Analyze button into the given parent widget."""
     # Style for Combobox and button
     style = ttk.Style()
@@ -58,7 +62,7 @@ def create_analysis_widgets(parent):
     analyze_button = tk.Button(
         parent,
         text="ANALYZE",
-        command=analyze,
+        command=lambda: analyze(get_uploaded_file()),  # Pass the uploaded file to the analyze function
         bg='#A9DFD8',
         fg='black',
         font=('Roboto', 12, 'bold'),

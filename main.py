@@ -2,6 +2,7 @@ import tkinter as tk
 from components.download_btn.download_btn import create_save_button
 from components.home_btn.home_btn import create_home_button
 from components.analyze_btn.analyze_btn import create_analysis_widgets
+from components.upload_btn.memory_upload import create_upload_button, upload_memory_dump
 
 def main():
     root = tk.Tk()
@@ -33,11 +34,23 @@ def initialize_main_ui(root):
     label = tk.Label(root, text="Hello, Tkinter!", fg="white", bg=bg_color)
     label.pack(pady=20)
 
+    # Variable to store the uploaded file path
+    uploaded_file = tk.StringVar()
+
+    # Create the upload button and update the variable with the file path
+    def get_uploaded_file():
+        file_path = upload_memory_dump()
+        uploaded_file.set(file_path)
+        print(f"Uploaded file: {file_path}")
+        return file_path
+
+    create_upload_button(root)
+
     # Create the save button using the download component
     create_save_button(root)
 
     # Create the analyze widgets (Combobox and Analyze button) using the analyze component
-    create_analysis_widgets(root)
+    create_analysis_widgets(root, get_uploaded_file)
 
     # Create the home button using the home button component
     create_home_button(root, initialize_main_ui)
