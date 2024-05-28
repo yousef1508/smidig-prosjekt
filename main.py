@@ -3,6 +3,7 @@ from components.download_btn.download_btn import create_save_button
 from components.home_btn.home_btn import create_home_button
 from components.analyze_btn.analyze_btn import create_analysis_widgets
 from components.upload_btn.memory_upload import create_upload_button, upload_memory_dump
+from components.settings_btn.settings import create_settings_button
 
 def main():
     root = tk.Tk()
@@ -54,6 +55,9 @@ def initialize_main_ui(root):
 
     # Create the home button using the home button component
     create_home_button(root, initialize_main_ui)
+
+    # Create the settings button using the settings component
+    create_settings_button(root)
 
 if __name__ == "__main__":
     main()
