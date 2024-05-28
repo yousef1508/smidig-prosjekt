@@ -84,5 +84,5 @@ analyze_button = tk.Button(
 analyze_button.config(width=20, height=2)  # Adjust the size of the button
 analyze_button.pack(pady=20)  # Place the button in the frame with padding
 
-# Start the main loop
+# This Starts the main loop
 root.mainloop()
