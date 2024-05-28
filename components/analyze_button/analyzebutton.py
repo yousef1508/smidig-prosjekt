@@ -60,9 +60,9 @@ analyze_button = tk.Button(
     command=analyze,
     bg='#A9DFD8',
     fg='black',
-    font=('Arial', 12, 'bold'),
+    font=('Arial', 12, 'bold')
 )
-analyze_button.config(width=20, height=2)  # Adjust the size of the button
+analyze_button.config(width=20, height=1)  # Adjust the size of the button
 analyze_button.pack(pady=20)  # Place the button in the frame with padding
 
 # Start the main loop
