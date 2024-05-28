@@ -26,6 +26,6 @@ def create_save_button(root):
 
     # Create the button with the resized image
     save_button = tk.Button(root, text="Save Result", command=save_result(), image=logo, compound="left",
-                            bg="#a9dfd8", fg="black", font=("Helvetica", 12), padx=5, pady=5, borderwidth=0)
+                            bg="#a9dfd8", fg="black", font=("Roboto", 12), padx=5, pady=5, borderwidth=0)
     save_button.image = logo  # Keep a reference to the image to prevent garbage collection
     save_button.pack(pady=10)
