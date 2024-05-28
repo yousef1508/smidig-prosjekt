@@ -11,27 +11,8 @@ def analyze():
 root = tk.Tk()
 root.title("File Analysis")
 
-# Set the background color
-BG_COLOR = "#2e2e2e"
-root.configure(bg=BG_COLOR)
-
-# Set window size to 70% of the screen size and center it
-WIDTH_PERCENTAGE = 0.7
-HEIGHT_PERCENTAGE = 0.7
-
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-
-window_width = int(screen_width * WIDTH_PERCENTAGE)
-window_height = int(screen_height * HEIGHT_PERCENTAGE)
-
-x_position = (screen_width - window_width) // 2
-y_position = (screen_height - window_height) // 2
-
-root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
-
 # Create a frame for layout
-frame = tk.Frame(root, bg=BG_COLOR)
+frame = tk.Frame(root)
 frame.pack(expand=True)  # Place the frame in the main window and make it expandable
 
 # Style for Combobox and button
@@ -77,12 +58,12 @@ analyze_button = tk.Button(
     frame,
     text="ANALYZE",
     command=analyze,
-    bg='#A7E4D8',
+    bg='#A9DFD8',
     fg='black',
-    font=('Arial', 12, 'bold')
+    font=('Arial', 12, 'bold'),
 )
 analyze_button.config(width=20, height=2)  # Adjust the size of the button
 analyze_button.pack(pady=20)  # Place the button in the frame with padding
 
-# This Starts the main loop
+# Start the main loop
 root.mainloop()
