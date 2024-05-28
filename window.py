@@ -9,7 +9,7 @@ def main():
     bg_color = "#2e2e2e"
     root.configure(bg=bg_color)
 
-    label = tk.Label(root, text="Hello, Tkinter!", fg="white", bg=bg_color)
+    label = tk.Label(root, text="Hello, Tkinter!", fg="white", bg=bg_color, font=("Roboto", 16, "bold"))
     label.pack(pady=20)
 
     width_percentage = 0.7
