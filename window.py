@@ -1,6 +1,7 @@
 import tkinter as tk
 from components.download_btn.download import create_save_button
 from components.home_button.home_button import create_home_button
+from components.analyze_button.analyzebutton import create_analysis_widgets  # Import the analyze component
 
 def main():
     root = tk.Tk()
@@ -34,6 +35,9 @@ def initialize_main_ui(root):
 
     # Create the save button using the download component
     create_save_button(root)
+
+    # Create the analyze widgets (Combobox and Analyze button) using the analyze component
+    create_analysis_widgets(root)
 
     # Create the home button using the home button component
     create_home_button(root, initialize_main_ui)
