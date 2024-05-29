@@ -1,16 +1,20 @@
 import customtkinter as ctk
+from components.navbar_btn.navbar import create_navbar
 from components.download_btn.download_btn import create_save_button
 from components.home_btn.home_btn import create_home_button
-from components.analyze_btn.analyze_btn import create_analysis_widgets  # Updated import
+from components.analyze_btn.analyze_btn import create_analysis_widgets
 from components.upload_btn.memory_upload import create_upload_button
 from components.settings_btn.settings import create_settings_button
 
 def initialize_main_ui(root):
-    file_path = create_upload_button(root)  # Assuming it returns the file path
+    file_path = create_upload_button(root)
     create_save_button(root)
-    create_analysis_widgets(root, file_path)  # Pass the file path to the analysis widget
-    create_home_button(root, initialize_main_ui)  # Pass initialize_main_ui as an argument
+    create_analysis_widgets(root, file_path)
+    create_home_button(root, initialize_main_ui)
     create_settings_button(root)
+
+    # Create Navbar instance and pass the root window
+    create_navbar(root)  # Add this line to create the navbar buttons
 
 def main():
     ctk.set_appearance_mode("dark")
@@ -36,4 +40,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
