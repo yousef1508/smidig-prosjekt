@@ -1,11 +1,13 @@
-# components/settings_button/settings.py
-import tkinter as tk
+import customtkinter as ctk
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import os
 
+
 def open_settings():
-    messagebox.showinfo("Settings", "Settings Page Opened")  # Example action, you can replace it with your settings page logic
+    messagebox.showinfo("Settings",
+                        "Settings Page Opened")  # Example action, you can replace it with your settings page logic
+
 
 def create_settings_button(root):
     def on_settings_click():
@@ -18,10 +20,21 @@ def create_settings_button(root):
     settings_icon = ImageTk.PhotoImage(icon_image)
 
     # Create the button with the resized icon
-    settings_button = tk.Button(root, image=settings_icon, command=on_settings_click, bg="#a9dfd8", bd=0)
+    settings_button = ctk.CTkButton(root, image=settings_icon, command=on_settings_click, fg_color="#a9dfd8",
+                                    hover_color="#91c9bf", text="")
     settings_button.image = settings_icon  # Keep a reference to the image to prevent garbage collection
 
     # Position the button at the top right corner, relative to the root window size
     settings_button.place(relx=1.0, y=10, anchor='ne')  # Position at top right corner, y=10 pixels from the top
 
     return settings_button
+
+
+if __name__ == "__main__":
+    ctk.set_appearance_mode("dark")  # Options: "dark", "light"
+    ctk.set_default_color_theme("blue")  # Options: "blue", "green", "dark-blue"
+
+    root = ctk.CTk()
+    root.geometry("800x600")  # Set the size of the window
+    create_settings_button(root)
+    root.mainloop()
