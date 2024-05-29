@@ -1,4 +1,4 @@
-import tkinter as tk
+import customtkinter as ctk
 from components.download_btn.download_btn import create_save_button
 from components.home_btn.home_btn import create_home_button
 from components.analyze_btn.analyze_btn import create_analysis_widgets
@@ -6,8 +6,11 @@ from components.upload_btn.memory_upload import create_upload_button, upload_mem
 from components.settings_btn.settings import create_settings_button
 
 def main():
-    root = tk.Tk()
-    root.title("Tkinter Example")
+    ctk.set_appearance_mode("dark")  # Modes: "System" (default), "Dark", "Light"
+    ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (default), "dark-blue", "green"
+
+    root = ctk.CTk()
+    root.title("CustomTkinter Example")
 
     width_percentage = 0.7
     height_percentage = 0.7
@@ -30,13 +33,13 @@ def main():
 
 def initialize_main_ui(root):
     bg_color = "#2e2e2e"
-    root.configure(bg=bg_color)
+    root.configure(fg_color=bg_color)
 
-    label = tk.Label(root, text="Hello, Tkinter!", fg="white", bg=bg_color)
+    label = ctk.CTkLabel(root, text="Hello, CustomTkinter!", text_color="white")
     label.pack(pady=20)
 
     # Variable to store the uploaded file path
-    uploaded_file = tk.StringVar()
+    uploaded_file = ctk.StringVar()
 
     # Create the upload button and update the variable with the file path
     def get_uploaded_file():
