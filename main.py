@@ -10,7 +10,6 @@ def main():
     ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (default), "dark-blue", "green"
 
     root = ctk.CTk()
-    root.title("CustomTkinter Example")
 
     width_percentage = 0.7
     height_percentage = 0.7
@@ -32,11 +31,8 @@ def main():
     root.mainloop()
 
 def initialize_main_ui(root):
-    bg_color = "#2e2e2e"
+    bg_color = "#262626"
     root.configure(fg_color=bg_color)
-
-    label = ctk.CTkLabel(root, text="Hello, CustomTkinter!", text_color="white")
-    label.pack(pady=20)
 
     # Variable to store the uploaded file path
     uploaded_file = ctk.StringVar()
