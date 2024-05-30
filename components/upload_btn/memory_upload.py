@@ -8,7 +8,7 @@ def create_upload_button(root):
 
     def upload_action():
         nonlocal file_path
-        file_path = filedialog.askopenfilename(title="Select a file", filetypes=[("Memory Dump Files", "*.dmp")])
+        file_path = filedialog.askopenfilename(title="Select a file", filetypes=[("Memory Dump Files", "*.mem")])
         if file_path:
             print("File uploaded:", file_path)
 
