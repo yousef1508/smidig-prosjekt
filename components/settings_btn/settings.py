@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import messagebox
-from PIL import Image, ImageTk
+from PIL import Image
 import os
 
 
@@ -17,7 +17,9 @@ def create_settings_button(root):
     icon_path = os.path.join(os.path.dirname(__file__), 'settings_icon.png')
     icon_image = Image.open(icon_path)
     icon_image = icon_image.resize((30, 30), Image.LANCZOS)
-    settings_icon = ImageTk.PhotoImage(icon_image)
+
+    # Convert the PIL image to a CTkImage
+    settings_icon = ctk.CTkImage(light_image=icon_image, dark_image=icon_image, size=(30, 30))
 
     # Create the button with the resized icon
     settings_button = ctk.CTkButton(root, image=settings_icon, command=on_settings_click, fg_color="#a9dfd8",
