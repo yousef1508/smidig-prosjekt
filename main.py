@@ -21,10 +21,6 @@ def initialize_main_ui(root):
         # Show error message box
         messagebox.showerror("Error", f"An error occurred: {e}")
 
-def test_error():
-    # Simulate an error by dividing by zero
-    result = 1 / 0
-
 def main():
     try:
         ctk.set_appearance_mode("dark")
@@ -46,7 +42,7 @@ def main():
         root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
         # code to test whether the error handling works or not, uncomment to test
-        #test_error()
+        test_error()
 
         initialize_main_ui(root)
         root.mainloop()
