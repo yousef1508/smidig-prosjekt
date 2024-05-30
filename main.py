@@ -23,6 +23,7 @@ def initialize_main_ui(root):
 
 
 
+
 def main():
     try:
         ctk.set_appearance_mode("dark")
