@@ -27,17 +27,17 @@ frame = ctk.CTkFrame(root)
 frame.grid(column=0, row=0, padx=10, pady=10, sticky="nsew")
 
 # Label
-label = ctk.CTkLabel(frame, text="Search:", text_color="black")
+label = ctk.CTkLabel(frame, text="Search:", text_color="#f5f5f5")
 label.grid(column=0, row=0, padx=10, pady=10, sticky="w")
 
 # Search Entry box
 search_var = ctk.StringVar()
-search_entry = ctk.CTkEntry(frame, width=200, textvariable=search_var, fg_color="white", text_color="black")
+search_entry = ctk.CTkEntry(frame, width=200, textvariable=search_var, fg_color="#474747", text_color="white")
 search_entry.grid(column=1, row=0, padx=10, pady=10, sticky="ew")
 search_entry.focus()
 
 # Search button
-search_button = ctk.CTkButton(frame, text="Search", command=search, fg_color="gray", text_color="black")
+search_button = ctk.CTkButton(frame, text="Search", command=search, fg_color="turquoise", text_color="black")
 search_button.grid(column=2, row=0, padx=10, pady=10, sticky="w")
 
 root.mainloop()
