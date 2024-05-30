@@ -41,3 +41,6 @@ search_button = ctk.CTkButton(frame, text="Search", command=search, fg_color="gr
 search_button.grid(column=2, row=0, padx=10, pady=10, sticky="w")
 
 root.mainloop()
+
+
+
