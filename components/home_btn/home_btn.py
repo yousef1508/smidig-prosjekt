@@ -1,36 +1,40 @@
 import customtkinter as ctk
+from PIL import Image
 import os
 
-def on_home_enter(event):
-    event.widget.configure(fg_color="#c3e4ed")
-
-def on_home_leave(event):
-    event.widget.configure(fg_color="#a9dfd8")
-
-def on_home_click(event):
-    event.widget.configure(fg_color="white")
-
-def create_home_button(root, initialize_main_ui):
-    home_button = ctk.CTkButton(
-        root, text="Home", command=lambda: redirect_to_main_page(root, initialize_main_ui),
-        fg_color="#a9dfd8", hover_color="#91c9bf", text_color="black", border_width=0
-    )
-    home_button.place(x=10, y=10)
-
-    home_button.bind("<Enter>", on_home_enter)
-    home_button.bind("<Leave>", on_home_leave)
-    home_button.bind("<Button-1>", on_home_click)
-
-def redirect_to_main_page(root, initialize_main_ui):
+def on_home_click(root, initialize_main_ui):
+    print("Home button clicked")
+    # Clear existing widgets
     for widget in root.winfo_children():
         widget.destroy()
+    # Re-initialize the main UI
     initialize_main_ui(root)
 
+def create_home_button(root, initialize_main_ui):
+    # Load and resize the icon
+    icon_path = os.path.join(os.path.dirname(__file__), 'home_icon.png')
+    icon_image = Image.open(icon_path)
+    icon_image = icon_image.resize((30, 30), Image.LANCZOS)
+
+    # Convert the PIL image to a CTkImage
+    home_icon = ctk.CTkImage(light_image=icon_image, dark_image=icon_image, size=(30, 30))
+
+    # Create the button with the resized icon
+    home_button = ctk.CTkButton(root, image=home_icon, command=lambda: on_home_click(root, initialize_main_ui), fg_color="#a9dfd8",
+                                hover_color="#91c9bf", text="")
+    home_button.image = home_icon  # Keep a reference to the image to prevent garbage collection
+
+    # Position the button at the top left corner, relative to the root window size
+    home_button.place(relx=0.0, y=10, anchor='nw')  # Position at top left corner, y=10 pixels from the top
+
+    return home_button
+
+
 if __name__ == "__main__":
-    ctk.set_appearance_mode("dark")
-    ctk.set_default_color_theme("blue")
+    ctk.set_appearance_mode("dark")  # Options: "dark", "light"
+    ctk.set_default_color_theme("blue")  # Options: "blue", "green", "dark-blue"
 
     root = ctk.CTk()
-    root.geometry("800x600")
-    create_home_button(root, lambda root: print("Main UI initialized"))
+    root.geometry("800x600")  # Set the size of the window
+    create_home_button(root, None)
     root.mainloop()
