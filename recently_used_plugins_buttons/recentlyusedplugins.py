@@ -4,24 +4,24 @@ def plugin_action(plugin_name):
     """Handles the plugin button click event."""
     print(f'Plugin selected: {plugin_name}')
 
-# main window
+# Initialize the main window
 root = ctk.CTk()
 root.title("Volatility 3 Plugins")
 root.geometry("400x300")
 
-# grid layout for the main window
+# Configure grid layout for the main window
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
-# frame for the plugins section
+# Create a frame for the plugins section
 frame = ctk.CTkFrame(root, corner_radius=10, fg_color="#1e1e1e")
 frame.grid(column=0, row=0, padx=20, pady=20, sticky="nsew")
 
-#label for Recently used plug-ins
+# Add a label for "Recently used plug-ins"
 label = ctk.CTkLabel(frame, text="Recently used plug-ins", text_color="white", font=("Arial", 16))
 label.grid(column=0, row=0, columnspan=3, pady=10)
 
-# grid layout for the frame
+# Configure grid layout for the frame
 frame.columnconfigure((0, 1, 2), weight=1, uniform="column")
 frame.rowconfigure((1, 2), weight=1, uniform="row")
 
@@ -35,7 +35,7 @@ plugin_names = [
     "windows.modules"
 ]
 
-# plugin buttons (boxes)
+# Add plugin buttons (boxes)
 for i, plugin_name in enumerate(plugin_names):
     row = 1 + i // 3  # Determine row index (1 or 2, because row 0 is for the label)
     col = i % 3  # Determine column index (0, 1, or 2)
