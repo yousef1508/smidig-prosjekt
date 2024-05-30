@@ -21,6 +21,8 @@ def initialize_main_ui(root):
         # Show error message box
         messagebox.showerror("Error", f"An error occurred: {e}")
 
+
+
 def main():
     try:
         ctk.set_appearance_mode("dark")
