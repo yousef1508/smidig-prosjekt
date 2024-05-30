@@ -7,6 +7,9 @@ from components.analyze_btn.analyze_btn import create_analysis_widgets
 from components.upload_btn.memory_upload import create_upload_button
 from components.settings_btn.settings import create_settings_button
 
+# Correct import statement
+from components.recently_used_plugins_buttons.recentlyusedplugins import create_recently_used_plugins
+
 def initialize_main_ui(root):
     try:
         file_path = create_upload_button(root)
@@ -16,7 +19,10 @@ def initialize_main_ui(root):
         create_settings_button(root)
 
         # Create Navbar instance and pass the root window
-        create_navbar(root)  # Add this line to create the navbar buttons
+        create_navbar(root)
+
+        # Create recently used plugins section
+        create_recently_used_plugins(root)
     except Exception as e:
         # Show error message box
         messagebox.showerror("Error", f"An error occurred: {e}")
@@ -41,8 +47,8 @@ def main():
 
         root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
-        # code to test whether the error handling works or not, uncomment to test
-        #test_error()
+        # Uncomment to test error handling
+        # test_error()
 
         initialize_main_ui(root)
         root.mainloop()
