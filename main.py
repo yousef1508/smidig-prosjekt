@@ -42,7 +42,7 @@ def main():
         root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
         # code to test whether the error handling works or not, uncomment to test
-        test_error()
+        #test_error()
 
         initialize_main_ui(root)
         root.mainloop()
