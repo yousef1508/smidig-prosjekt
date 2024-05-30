@@ -22,7 +22,6 @@ def result_page():
 
     result_root.mainloop()
 
-
 def initialize_result_ui(root):
     bg_color = "#262626"
     root.configure(fg_color=bg_color)
@@ -33,7 +32,6 @@ def initialize_result_ui(root):
 
     button = ctk.CTkButton(root, text="Click Me", command=lambda: print("Button clicked"))
     button.pack(pady=20)
-
 
 # Add a conditional block to allow direct testing
 # DENNE IF KODEN SKAL FJERNES I FINALE VERSJONEN. FORDI DEN ER HER KUN FOR TEST GRUNNER.
