@@ -20,4 +20,14 @@ def search ():
     search_var =ctk.StringVar(
     search_entry = ctk.CTkEntry(frame, width=200, textervariable= search_var)
     search_entry.grid(column=1, row=0, padx=10, sticky= w)
+    search_var = ctk.StringVar()
+    search_entry = ctk.CTkEntry(frame, width=200, textvariable=search_var, fg_color="white", text_color="black")
+    search_entry.grid(column=1, row=0, padx=10, pady=10, sticky="ew")
+    search_entry.focus()
 
+    search button
+    search_button = ctk.CTkButton(frame, text="Search", command=search, fg_color="gray", text_color="black")
+    search_button.grid(column=2, row=0, padx=10, pady=10, sticky="w")
+
+
+    root.mainloop()
