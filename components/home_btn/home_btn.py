@@ -8,7 +8,8 @@ def on_home_click(root, initialize_main_ui):
     for widget in root.winfo_children():
         widget.destroy()
     # Re-initialize the main UI
-    initialize_main_ui(root)
+    if initialize_main_ui is not None:
+        initialize_main_ui(root)
 
 def create_home_button(root, initialize_main_ui):
     # Load and resize the icon
@@ -19,16 +20,16 @@ def create_home_button(root, initialize_main_ui):
     # Convert the PIL image to a CTkImage
     home_icon = ctk.CTkImage(light_image=icon_image, dark_image=icon_image, size=(30, 30))
 
-    # Create the button with the resized icon
-    home_button = ctk.CTkButton(root, image=home_icon, command=lambda: on_home_click(root, initialize_main_ui), fg_color="#a9dfd8",
-                                hover_color="#91c9bf", text="")
+    # Create the button with the resized icon and text
+    home_button = ctk.CTkButton(root, image=home_icon, command=lambda: on_home_click(root, initialize_main_ui),
+                                fg_color="#a9dfd8", hover_color="#91c9bf", text="Home", compound="left",
+                                text_color="black", font=("Arial", 14))
     home_button.image = home_icon  # Keep a reference to the image to prevent garbage collection
 
     # Position the button at the top left corner, relative to the root window size
     home_button.place(relx=0.0, y=10, anchor='nw')  # Position at top left corner, y=10 pixels from the top
 
     return home_button
-
 
 if __name__ == "__main__":
     ctk.set_appearance_mode("dark")  # Options: "dark", "light"
