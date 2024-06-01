@@ -89,3 +89,4 @@ coverage.xml
 *.cover
 *.py,cover
 .ipynb_checkpoints/
+config.json
