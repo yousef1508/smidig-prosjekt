@@ -1,17 +1,22 @@
 import customtkinter as ctk
-from tkinter import filedialog, Toplevel, StringVar, messagebox, Text, Scrollbar
-import tkinter as tk
+from tkinter import filedialog, StringVar, messagebox, Text
 import os
+import time
 import subprocess
 import threading
 import json
-from volatility3.framework import contexts, automagic, constants
+import logging
+from volatility3.framework import contexts, constants
 from volatility3 import framework, plugins
 from tkinter import ttk
 
-
 # Configuration file path
 CONFIG_FILE = "config.json"
+LOG_FILE = "app.log"
+
+# Setup logging
+logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 def load_volatility_path():
@@ -55,8 +60,8 @@ class VolatilityApp(ctk.CTk):
         super().__init__()
         self.title("Volatility 3 Analysis Tool")
         self.geometry("900x700")
-        self.tab_names = set()
-
+        self.setup_ui()
+        self.tab_names = set()  # Initialize tab_names attribute
 
         # Colors and font styling from design template
         self.background_color = "#262626"
@@ -80,7 +85,7 @@ class VolatilityApp(ctk.CTk):
         self.plugin_dropdown_var = StringVar(value="Load file to select plugin")
 
         # Renderer dropdown variable
-        self.renderer_var = StringVar(value="quick")
+        self.renderer_var = StringVar(value="none")
 
         # Verbose option variable
         self.verbose_var = ctk.BooleanVar(value=False)
@@ -91,7 +96,6 @@ class VolatilityApp(ctk.CTk):
         # Tabview for results
         self.tabview = ctk.CTkTabview(self)
         self.tabview.grid(row=8, column=0, padx=20, pady=20, sticky="nsew")
-        self.tab_names = set()
 
         # Header
         header = ctk.CTkLabel(self, text="File Analysis", font=("Arial", 24, "bold"), text_color=self.text_bright,
@@ -108,16 +112,20 @@ class VolatilityApp(ctk.CTk):
                                   bg_color=self.background_color)
         file_label.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
 
+        # Create a frame for dropdowns
+        self.dropdown_frame = ctk.CTkFrame(self, fg_color=self.background_color)
+        self.dropdown_frame.grid(row=3, column=0, padx=20, pady=10)
+
         # Plugin Dropdown
-        self.create_plugin_dropdown(["Load file to select plugin"])
+        self.create_plugin_dropdown(["Load file to select plugin"], master=self.dropdown_frame)
 
         # Renderer Option
         renderer_dropdown = ctk.CTkOptionMenu(
-            self, variable=self.renderer_var, values=["quick", "pretty", "json", "csv"],
+            master=self.dropdown_frame, variable=self.renderer_var, values=["none", "quick", "pretty", "json"],
             fg_color=self.input_field_color, text_color=self.text_bright, button_color=self.button_color,
-            button_hover_color=self.header_color, font=self.font
+            button_hover_color=self.header_color, font=self.font, width=200
         )
-        renderer_dropdown.grid(row=4, column=0, padx=20, pady=10, sticky="ew")
+        renderer_dropdown.pack(side="left", padx=(0, 20))
 
         # Verbose Option
         verbose_checkbox = ctk.CTkCheckBox(
@@ -131,8 +139,33 @@ class VolatilityApp(ctk.CTk):
                                        text_color=self.text_dark, hover_color=self.header_color, font=self.font)
         analyze_button.grid(row=6, column=0, padx=20, pady=20, sticky="ew")
 
+        # Help Button
+        help_button = ctk.CTkButton(self, text="Help", command=self.show_help, fg_color=self.button_color,
+                                    text_color=self.text_dark, hover_color=self.header_color, font=self.font)
+        help_button.grid(row=7, column=0, padx=20, pady=10, sticky="ew")
+
         # Load and set the Volatility path
         self.VOLATILITY_PATH = get_volatility_path()
+
+    def setup_ui(self):
+        self.file_path_var = StringVar(value="No file selected")
+        self.plugin_dropdown_var = StringVar(value="Load file to select plugin")
+        self.verbose_var = ctk.BooleanVar(value=False)
+        self.renderer_var = StringVar(value="none")
+
+    def show_help(self):
+        help_text = """
+        Welcome to the Volatility 3 Analysis Tool!
+
+        1. Select a memory dump file.
+        2. Choose a plugin from the dropdown.
+        3. Choose a renderer option.
+        4. Click 'Analyze' to run the analysis.
+        5. View the results in the tabbed interface.
+
+        For more information, refer to the official Volatility 3 documentation.
+        """
+        messagebox.showinfo("Help", help_text)
 
     def select_file(self):
         file_path = filedialog.askopenfilename(
@@ -144,20 +177,20 @@ class VolatilityApp(ctk.CTk):
             self.file_path_var.set(file_path)
             self.update_plugin_dropdown(file_path)
 
-    def create_plugin_dropdown(self, plugins):
+    def create_plugin_dropdown(self, plugins, master):
         if self.plugin_dropdown:
             self.plugin_dropdown.destroy()
         self.plugin_dropdown = ctk.CTkOptionMenu(
-            self, variable=self.plugin_dropdown_var, values=plugins, fg_color=self.input_field_color,
+            master=master, variable=self.plugin_dropdown_var, values=plugins, fg_color=self.input_field_color,
             text_color=self.text_bright, button_color=self.button_color, button_hover_color=self.header_color,
-            font=self.font
+            font=self.font, width=200
         )
-        self.plugin_dropdown.grid(row=3, column=0, padx=20, pady=10, sticky="ew")
+        self.plugin_dropdown.pack(side="left", padx=(0, 20))  # Ensure spacing is maintained
 
     def update_plugin_dropdown(self, file_path):
         plugins = self.get_volatility_plugins()
         categorized_plugins = self.categorize_plugins(plugins)
-        self.create_plugin_dropdown(["Select plugin"] + categorized_plugins)
+        self.create_plugin_dropdown(["Load file to select plugin"] + categorized_plugins, master=self.dropdown_frame)
         self.plugin_dropdown_var.set("Select plugin")
 
     def get_volatility_plugins(self):
@@ -218,35 +251,60 @@ class VolatilityApp(ctk.CTk):
             messagebox.showwarning("Invalid File", "Please select a valid file.")
 
     def show_progress_modal(self, file_path, plugin, renderer, verbose):
-        modal = Toplevel(self)
-        modal.title("Analyzing...")
-        modal.geometry("400x150")
-        modal.configure(bg="#262626")
-        modal.transient(self)
-        modal.grab_set()
+        # Create a frame to act as a modal
+        self.modal_frame = ctk.CTkFrame(self, fg_color="#333333", corner_radius=10)
+        self.modal_frame.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.5, relheight=0.25)
+
+        header_label = ctk.CTkLabel(self.modal_frame, text="Analyzing...", font=("Arial", 18, "bold"), text_color="#FFFFFF")
+        header_label.pack(pady=10)
 
         progress_var = StringVar()
         progress_var.set("0%")
 
-        progress_bar = ctk.CTkProgressBar(modal, mode='indeterminate', fg_color="#A9DFD8")
+        progress_bar = ctk.CTkProgressBar(self.modal_frame, fg_color="#00BCD4", mode='determinate')
         progress_bar.pack(pady=10, padx=20, fill='x')
-        progress_bar.start()
+        progress_bar.set(0)
 
-        progress_label = ctk.CTkLabel(modal, textvariable=progress_var, font=("Arial", 14), text_color="#F5F5F5",
-                                      bg_color="#262626")
+        progress_label = ctk.CTkLabel(self.modal_frame, textvariable=progress_var, font=("Arial", 14), text_color="#FFFFFF")
         progress_label.pack(pady=10)
 
+        # Start the animation thread
+        threading.Thread(target=self.animate_progress_bar, args=(progress_bar, progress_var)).start()
+        # Start the volatility execution thread
         threading.Thread(target=self.execute_volatility,
-                         args=(file_path, plugin, renderer, verbose, modal, progress_bar, progress_var)).start()
+                         args=(file_path, plugin, renderer, verbose, progress_bar, progress_var)).start()
 
-    def execute_volatility(self, file_path, plugin, renderer, verbose, modal, progress_bar, progress_var):
+    def animate_progress_bar(self, progress_bar, progress_var):
+        for i in range(101):
+            time.sleep(0.02)
+            progress_var.set(f"{i}%")
+            progress_bar.set(i / 100)
+            self.update_idletasks()
+
+    def execute_volatility(self, file_path, plugin, renderer, verbose, progress_bar, progress_var):
         command = ["python", self.VOLATILITY_PATH, "-r", renderer]
         if verbose:
             command.append("-v")
         command.extend(["-f", file_path, plugin])
 
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
+
         try:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            while True:
+                output = process.stdout.readline()
+                if output == '' and process.poll() is not None:
+                    break
+                if output:
+                    # Parse the output to extract progress information
+                    if "Progress" in output:
+                        parts = output.strip().split(" - ")
+                        if len(parts) == 2:
+                            progress = parts[0].split(" ")[1]
+                            status = parts[1]
+                            progress_var.set(progress)
+                            progress_bar.set(int(progress.strip('%')) / 100)
+                            self.update_idletasks()
+
             stdout, stderr = process.communicate()
             if process.returncode == 0:
                 content = stdout
@@ -255,11 +313,14 @@ class VolatilityApp(ctk.CTk):
                 self.create_result_tab(plugin, renderer, f"Error: {stderr}")
         except Exception as e:
             self.create_result_tab(plugin, renderer, str(e))
+            logging.error(f"Error executing Volatility plugin: {e}")
         finally:
-            progress_bar.stop()
+            progress_bar.set(1)
             progress_var.set("100%")
-            modal.grab_release()
-            modal.destroy()
+            self.after(500, self.remove_progress_modal)
+
+    def remove_progress_modal(self):
+        self.modal_frame.destroy()
 
     def create_result_tab(self, plugin, renderer, content):
         tab_name = f"Result - {plugin} ({renderer})"
@@ -275,22 +336,33 @@ class VolatilityApp(ctk.CTk):
                                      hover_color=self.header_color, font=self.font)
         close_button.pack(pady=10)
 
+        if "info" in plugin.lower():
+            # For "info" plugins, display content in a Text widget
+            self.display_info_content(tab_frame, content)
+        else:
+            # For other plugins, display content in a Treeview
+            self.display_treeview_content(tab_frame, content)
+
+        self.tabview.set(tab_name)
+
+    def display_info_content(self, tab_frame, content):
+        text_widget = Text(tab_frame, wrap="word", bg="#262626", fg="#F5F5F5", font=("Arial", 14), padx=10, pady=10)
+        text_widget.insert("1.0", content)
+        text_widget.pack(padx=10, pady=10, fill='both', expand=True)
+
+    def display_treeview_content(self, tab_frame, content):
         lines = content.splitlines()
         if not lines:
             return
 
-        # Extract headers properly
         headers = lines[0].split()
-        # Filter out empty strings and extra spaces
         headers = [header for header in headers if header.strip()]
 
         tree = ttk.Treeview(tab_frame, columns=headers, show="headings")
 
-        # Configure headings dynamically
         for header in headers:
             tree.heading(header, text=header)
 
-        # Style the Treeview
         style = ttk.Style()
         style.configure("Treeview",
                         background="#262626",  # Background
@@ -308,7 +380,6 @@ class VolatilityApp(ctk.CTk):
                   background=[('selected', '#474747')],  # Boxes/input-fields
                   foreground=[('selected', '#F5F5F5')])  # Text bright
 
-        # Make the Treeview headers have a consistent dark background
         style.layout("Treeview.Heading", [
             ('Treeheading.cell', {'sticky': 'nswe'}),
             ('Treeheading.border', {'sticky': 'nswe', 'children': [
@@ -319,19 +390,16 @@ class VolatilityApp(ctk.CTk):
             ]})
         ])
 
-        # Insert data into the Treeview
-        for line in lines[1:]:  # Skip the header line
+        for line in lines[2:]:  # Skip the header line
             values = line.split()
-            values = [value for value in values if value.strip()]  # Filter out empty strings and extra spaces
+            values = [value for value in values if value.strip()]
             tree.insert("", "end", values=values)
 
         tree.pack(padx=10, pady=10, fill='both', expand=True)
-        self.tabview.set(tab_name)
 
     def close_tab(self, tab_name):
         self.tabview.delete(tab_name)
         self.tab_names.remove(tab_name)
-
 
 
 if __name__ == "__main__":
