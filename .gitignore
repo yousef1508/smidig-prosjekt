@@ -61,12 +61,10 @@ dmypy.json
 *.yml
 *.nbconvert/
 *.nbconvert.html
-*.log
 *.tmp
 *.temp
 *.bak
 *.old
-__pycache__/
 *.iml
 .idea/workspace.xml
 .idea/tasks.xml
@@ -79,13 +77,6 @@ __pycache__/
 .idea/*.iml
 .idea/.name
 .idea/.gitignore
-.idea/modules.xml
-*.whl
 Pipfile.lock
-.coverage
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
 .ipynb_checkpoints/
+config.json
