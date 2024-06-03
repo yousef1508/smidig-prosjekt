@@ -11,6 +11,7 @@ from volatility3 import framework, plugins
 from tkinter import ttk
 
 
+VOLATILITY_PATH = r'C:\Users\ayman\volatility3-develop\vol.py'
 
 
 class VolatilityApp(ctk.CTk):
