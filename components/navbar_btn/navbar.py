@@ -35,4 +35,3 @@ def create_navbar(root):
         width=40, height=40  # Adjust the size to fit your icons
     )
     forward_button.place(x=210, y=10)  # Set position 210px from the left and 10px from the top
-
