@@ -8,7 +8,7 @@ from volatility3.framework import contexts, automagic, constants
 from volatility3 import framework, plugins
 
 # Set the full path to your vol.py script
-VOLATILITY_PATH = r'C:\Users\youse\volatility3-develop\vol.py'
+VOLATILITY_PATH = r'C:\Users\ayman\volatility3-develop\vol.py'
 
 
 def main():

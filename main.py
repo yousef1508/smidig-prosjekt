@@ -3,7 +3,6 @@ from tkinter import messagebox
 from components.navbar_btn.navbar import create_navbar
 from components.download_btn.download_btn import create_save_button
 from components.home_btn.home_btn import create_home_button
-from components.analyze_btn.analyze_btn import create_analysis_widgets
 from components.upload_btn.memory_upload import create_upload_button
 from components.settings_btn.settings import create_settings_button
 
@@ -11,7 +10,6 @@ def initialize_main_ui(root):
     try:
         file_path = create_upload_button(root)
         create_save_button(root)
-        create_analysis_widgets(root, file_path)
         create_home_button(root, initialize_main_ui)
         create_settings_button(root)
 
