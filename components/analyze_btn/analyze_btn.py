@@ -9,6 +9,7 @@ import logging
 from volatility3.framework import contexts, constants
 from volatility3 import framework, plugins
 from tkinter import ttk
+VOLATILITY_PATH = r'C:\Users\Kaiwa\volatility3-develop'
 
 # Configuration file path
 CONFIG_FILE = "config.json"
