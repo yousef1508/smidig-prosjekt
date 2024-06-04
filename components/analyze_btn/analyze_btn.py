@@ -9,7 +9,6 @@ import logging
 from volatility3.framework import contexts, constants
 from volatility3 import framework, plugins
 from tkinter import ttk
-VOLATILITY_PATH = r'C:\Users\Kaiwa\volatility3-develop'
 
 # Configuration file path
 CONFIG_FILE = "config.json"
@@ -288,23 +287,15 @@ class VolatilityApp(ctk.CTk):
             command.append("-v")
         command.extend(["-f", file_path, plugin])
 
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
-
         try:
-            while True:
-                output = process.stdout.readline()
-                if output == '' and process.poll() is not None:
-                    break
-                if output:
-                    # Parse the output to extract progress information
-                    if "Progress" in output:
-                        parts = output.strip().split(" - ")
-                        if len(parts) == 2:
-                            progress = parts[0].split(" ")[1]
-                            status = parts[1]
-                            progress_var.set(progress)
-                            progress_bar.set(int(progress.strip('%')) / 100)
-                            self.update_idletasks()
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            total_steps = 100  # Total steps for progress bar simulation
+            for step in range(total_steps):
+                time.sleep(0.1)  # Simulate work being done
+                progress = (step + 1) / total_steps
+                progress_var.set(f"{int(progress * 100)}%")
+                progress_bar.set(progress)
+                self.update_idletasks()
 
             stdout, stderr = process.communicate()
             if process.returncode == 0:
@@ -406,3 +397,4 @@ class VolatilityApp(ctk.CTk):
 if __name__ == "__main__":
     app = VolatilityApp()
     app.mainloop()
+
