@@ -4,4 +4,4 @@ if __name__ == "__main__":
     app = VolatilityApp()
     app.mainloop()
 
-#Update for teammebers
+
