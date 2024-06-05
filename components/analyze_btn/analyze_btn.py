@@ -9,19 +9,60 @@ import logging
 from volatility3.framework import contexts, constants
 from volatility3 import framework, plugins
 from tkinter import ttk
-VOLATILITY_PATH = r'C:\Users\Kaiwa\volatility3-develop'
+
+# Configuration file path
+CONFIG_FILE = "config.json"
+LOG_FILE = "app.log"
+
+# Setup logging
+logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
-VOLATILITY_PATH = r'C:\Users\ayman\volatility3-develop\vol.py'
+def load_volatility_path():
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, 'r') as config_file:
+            config = json.load(config_file)
+            return config.get("VOLATILITY_PATH", None)
+    return None
+
+
+def save_volatility_path(path):
+    config = {"VOLATILITY_PATH": path}
+    with open(CONFIG_FILE, 'w') as config_file:
+        json.dump(config, config_file)
+
+
+def prompt_for_volatility_path():
+    path = filedialog.askopenfilename(
+        title="Select Volatility 3 Script",
+        filetypes=[("Python files", "*.py"), ("All files", "*.*")]
+    )
+    if path:
+        save_volatility_path(path)
+        return path
+    return None
+
+
+def get_volatility_path():
+    path = load_volatility_path()
+    if not path or not os.path.exists(path):
+        messagebox.showinfo("Volatility Path Not Found", "Please select the Volatility 3 vol.py script.")
+        path = prompt_for_volatility_path()
+        if not path:
+            messagebox.showerror("Path Selection Error", "Volatility path not set. The application will exit.")
+            exit()
+    return path
 
 
 class VolatilityApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Volatility 3 Analysis Tool")
-        self.geometry("900x700")
+        self.geometry("900x900")
         self.setup_ui()
         self.tab_names = set()  # Initialize tab_names attribute
+        self.load_settings()  # Load saved settings
 
         # Colors and font styling from design template
         self.background_color = "#262626"
@@ -36,7 +77,9 @@ class VolatilityApp(ctk.CTk):
         # Configure root window
         self.configure(bg=self.background_color)
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure([0, 1, 2, 3, 4, 5, 6, 7], weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure([0, 1, 2, 3, 4, 5, 6, 7, 8], weight=1)
+
 
         # Path variable to store the selected file path
         self.file_path_var = StringVar(value="No file selected")
@@ -55,26 +98,26 @@ class VolatilityApp(ctk.CTk):
 
         # Tabview for results
         self.tabview = ctk.CTkTabview(self)
-        self.tabview.grid(row=8, column=0, padx=20, pady=20, sticky="nsew")
+        self.tabview.grid(row=8, column=0, columnspan=2, padx=20, pady=20, sticky="ew")
 
         # Header
         header = ctk.CTkLabel(self, text="File Analysis", font=("Arial", 24, "bold"), text_color=self.text_bright,
                               bg_color=self.background_color)
-        header.grid(row=0, column=0, padx=20, pady=20)
+        header.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="n")
 
         # File Selection Button
         file_button = ctk.CTkButton(self, text="Select File", command=self.select_file, fg_color=self.button_color,
-                                    text_color=self.text_dark, hover_color=self.header_color, font=self.font)
-        file_button.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+                                    text_color=self.text_dark, hover_color="#5A9", font=self.font, width=150)
+        file_button.grid(row=1, column=0, columnspan=2, padx=20, pady=10, sticky="n")
 
         # File Path Label
         file_label = ctk.CTkLabel(self, textvariable=self.file_path_var, font=self.font, text_color=self.text_bright,
                                   bg_color=self.background_color)
-        file_label.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
+        file_label.grid(row=2, column=0, columnspan=2, padx=20, pady=10, sticky="n")
 
         # Create a frame for dropdowns
         self.dropdown_frame = ctk.CTkFrame(self, fg_color=self.background_color)
-        self.dropdown_frame.grid(row=3, column=0, padx=20, pady=10)
+        self.dropdown_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=10, sticky="n")
 
         # Plugin Dropdown
         self.create_plugin_dropdown(["Load file to select plugin"], master=self.dropdown_frame)
@@ -92,17 +135,23 @@ class VolatilityApp(ctk.CTk):
             self, text="Verbose", variable=self.verbose_var, onvalue=True, offvalue=False,
             fg_color=self.input_field_color, text_color=self.text_bright, font=self.font
         )
-        verbose_checkbox.grid(row=5, column=0, padx=20, pady=10, sticky="w")
+        verbose_checkbox.grid(row=4, column=0, columnspan=2, padx=20, pady=10, sticky="n")
 
         # Analyze Button
         analyze_button = ctk.CTkButton(self, text="Analyze", command=self.run_analysis, fg_color=self.button_color,
-                                       text_color=self.text_dark, hover_color=self.header_color, font=self.font)
-        analyze_button.grid(row=6, column=0, padx=20, pady=20, sticky="ew")
+                                       text_color=self.text_dark, hover_color="#5A9", font=self.font, width=150)
+        analyze_button.grid(row=5, column=0, columnspan=2, padx=20, pady=10, sticky="n")
 
         # Help Button
         help_button = ctk.CTkButton(self, text="Help", command=self.show_help, fg_color=self.button_color,
-                                    text_color=self.text_dark, hover_color=self.header_color, font=self.font)
-        help_button.grid(row=7, column=0, padx=20, pady=10, sticky="ew")
+                                    text_color=self.text_dark, hover_color="#5A9", font=self.font, width=150)
+        help_button.grid(row=8, column=1, padx=20, pady=10, sticky="se")
+
+        # Add a Settings Button
+        settings_button = ctk.CTkButton(self, text="Settings", command=self.show_settings_window,
+                                        fg_color=self.button_color,
+                                        text_color=self.text_dark, hover_color="#5A9", font=self.font, width=150)
+        settings_button.grid(row=7, column=1, padx=20, pady=10, sticky="se")
 
         # Load and set the Volatility path
         self.VOLATILITY_PATH = get_volatility_path()
@@ -113,6 +162,29 @@ class VolatilityApp(ctk.CTk):
         self.verbose_var = ctk.BooleanVar(value=False)
         self.renderer_var = StringVar(value="none")
 
+        def change_theme(self, new_theme):
+            ctk.set_appearance_mode(new_theme.lower())
+
+    def load_settings(self):
+        if os.path.exists("settings.json"):
+            with open("settings.json", "r") as settings_file:
+                settings = json.load(settings_file)
+                self.renderer_var.set(settings.get("renderer", "none"))
+                self.verbose_var.set(settings.get("verbose", False))
+
+    def save_volatility_path(self, path):
+        save_volatility_path(path)
+        self.VOLATILITY_PATH = path
+        messagebox.showinfo("Settings", "Volatility 3 path saved successfully.")
+
+    def save_settings(self, renderer, verbose):
+        settings = {
+            "renderer": renderer,
+            "verbose": verbose
+        }
+        with open("settings.json", "w") as settings_file:
+            json.dump(settings, settings_file)
+        messagebox.showinfo("Settings", "Settings saved successfully.")
     def show_help(self):
         help_text = """
         Welcome to the Volatility 3 Analysis Tool!
@@ -236,7 +308,7 @@ class VolatilityApp(ctk.CTk):
 
     def animate_progress_bar(self, progress_bar, progress_var):
         for i in range(101):
-            time.sleep(0.02)
+            time.sleep(1.2)
             progress_var.set(f"{i}%")
             progress_bar.set(i / 100)
             self.update_idletasks()
@@ -247,23 +319,15 @@ class VolatilityApp(ctk.CTk):
             command.append("-v")
         command.extend(["-f", file_path, plugin])
 
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
-
         try:
-            while True:
-                output = process.stdout.readline()
-                if output == '' and process.poll() is not None:
-                    break
-                if output:
-                    # Parse the output to extract progress information
-                    if "Progress" in output:
-                        parts = output.strip().split(" - ")
-                        if len(parts) == 2:
-                            progress = parts[0].split(" ")[1]
-                            status = parts[1]
-                            progress_var.set(progress)
-                            progress_bar.set(int(progress.strip('%')) / 100)
-                            self.update_idletasks()
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            total_steps = 100  # Total steps for progress bar simulation
+            for step in range(total_steps):
+                time.sleep(0.1)  # Simulate work being done
+                progress = (step + 1) / total_steps
+                progress_var.set(f"{int(progress * 100)}%")
+                progress_bar.set(progress)
+                self.update_idletasks()
 
             stdout, stderr = process.communicate()
             if process.returncode == 0:
@@ -361,7 +425,102 @@ class VolatilityApp(ctk.CTk):
         self.tabview.delete(tab_name)
         self.tab_names.remove(tab_name)
 
+    def close_settings_modal(self):
+        self.settings_modal.destroy()
 
-if __name__ == "__main__":
-    app = VolatilityApp()
-    app.mainloop()
+    def change_theme(self, new_theme):
+        if new_theme.lower() == "light":
+            self.background_color = "#F3EDE4"
+            self.header_color = "#D8D2CB"
+            self.button_color = "#C5BEB4"
+            self.textbox_color = "#EDE6DE"
+            self.input_field_color = "#D0C7BF"
+            self.text_bright = "#4B4A47"
+            self.text_dark = "#FFFFFF"
+        else:
+            # Default to dark theme
+            self.background_color = "#262626"
+            self.header_color = "#222222"
+            self.button_color = "#A9DFD8"
+            self.textbox_color = "#647A77"
+            self.input_field_color = "#474747"
+            self.text_bright = "#F5F5F5"
+            self.text_dark = "#000000"
+
+        self.apply_theme()
+
+    def apply_theme(self):
+        self.configure(bg=self.background_color)
+        self.tabview.configure(fg_color=self.background_color)
+
+        # Update all widgets with the new theme
+        for widget in self.winfo_children():
+            if isinstance(widget, ctk.CTkFrame):
+                widget.configure(fg_color=self.background_color)
+            elif isinstance(widget, ctk.CTkLabel):
+                widget.configure(text_color=self.text_bright, bg_color=self.background_color)
+            elif isinstance(widget, ctk.CTkButton):
+                widget.configure(fg_color=self.button_color, text_color=self.text_dark, hover_color=self.header_color)
+            elif isinstance(widget, ctk.CTkOptionMenu):
+                widget.configure(fg_color=self.input_field_color, text_color=self.text_bright,
+                                 button_color=self.button_color, button_hover_color=self.header_color)
+            elif isinstance(widget, ctk.CTkCheckBox):
+                widget.configure(fg_color=self.input_field_color, text_color=self.text_bright)
+
+    def show_settings_window(self):
+        self.settings_modal = ctk.CTkFrame(self, fg_color="#333333", corner_radius=10)
+        self.settings_modal.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.8, relheight=0.8)
+
+        header_label = ctk.CTkLabel(self.settings_modal, text="Settings", font=("Arial", 18, "bold"),
+                                    text_color="#FFFFFF")
+        header_label.pack(pady=10)
+
+        # Example settings: theme selection
+        theme_label = ctk.CTkLabel(self.settings_modal, text="Select Theme:", font=self.font, text_color="#FFFFFF")
+        theme_label.pack(pady=10)
+
+        theme_option = ctk.CTkOptionMenu(self.settings_modal, values=["Light", "Dark", "System"],
+                                         command=self.change_theme)
+        theme_option.pack(pady=10)
+
+        # Add settings for Volatility 3 path
+        volatility_path_label = ctk.CTkLabel(self.settings_modal, text="Volatility 3 Path:", font=self.font,
+                                             text_color="#FFFFFF")
+        volatility_path_label.pack(pady=10)
+
+        volatility_path_entry = ctk.CTkEntry(self.settings_modal, width=300)
+        volatility_path_entry.insert(0, self.VOLATILITY_PATH)
+        volatility_path_entry.pack(pady=10)
+
+        save_path_button = ctk.CTkButton(self.settings_modal, text="Save Path",
+                                         command=lambda: self.save_volatility_path(volatility_path_entry.get()))
+        save_path_button.pack(pady=10)
+
+        # Add settings for default renderer
+        renderer_label = ctk.CTkLabel(self.settings_modal, text="Default Renderer:", font=self.font,
+                                      text_color="#FFFFFF")
+        renderer_label.pack(pady=10)
+
+        renderer_option = ctk.CTkOptionMenu(self.settings_modal, variable=self.renderer_var,
+                                            values=["none", "quick", "pretty", "json"])
+        renderer_option.pack(pady=10)
+
+        # Add settings for default verbosity
+        verbose_label = ctk.CTkLabel(self.settings_modal, text="Verbose Mode:", font=self.font, text_color="#FFFFFF")
+        verbose_label.pack(pady=10)
+
+        verbose_option = ctk.CTkCheckBox(self.settings_modal, text="Enable", variable=self.verbose_var, onvalue=True,
+                                         offvalue=False)
+        verbose_option.pack(pady=10)
+
+        save_settings_button = ctk.CTkButton(self.settings_modal, text="Save Settings",
+                                             command=lambda: self.save_settings(renderer_option.get(),
+                                                                                self.verbose_var.get()))
+        save_settings_button.pack(pady=10)
+
+        close_button = ctk.CTkButton(self.settings_modal, text="Close", command=self.close_settings_modal,
+                                     fg_color=self.button_color, text_color=self.text_dark,
+                                     hover_color=self.header_color, font=self.font)
+        close_button.pack(pady=10)
+
+
