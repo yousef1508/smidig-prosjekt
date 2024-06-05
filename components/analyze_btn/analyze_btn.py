@@ -55,10 +55,6 @@ def get_volatility_path():
     return path
 
 
-def get_volatility_path():
-    pass
-
-
 class VolatilityApp(ctk.CTk):
     def __init__(self):
         super().__init__()
