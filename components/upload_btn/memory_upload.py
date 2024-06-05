@@ -14,7 +14,6 @@ def create_upload_button(root):
 
     def get_file_path():
         return file_path
-
     # Load the image
     current_dir = os.path.dirname(os.path.abspath(__file__))
     image_path = os.path.join(current_dir, "upload.png")
