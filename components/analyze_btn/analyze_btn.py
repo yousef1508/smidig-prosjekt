@@ -14,6 +14,7 @@ from tkinter import ttk
 CONFIG_FILE = "config.json"
 LOG_FILE = "app.log"
 
+
 # Setup logging
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -283,11 +284,15 @@ class VolatilityApp(ctk.CTk):
             messagebox.showwarning("Invalid File", "Please select a valid file.")
 
     def show_progress_modal(self, file_path, plugin, renderer, verbose):
+        # Add a cancel flag
+        self.cancel_flag = False
+
         # Create a frame to act as a modal
         self.modal_frame = ctk.CTkFrame(self, fg_color="#333333", corner_radius=10)
         self.modal_frame.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.5, relheight=0.25)
 
-        header_label = ctk.CTkLabel(self.modal_frame, text="Analyzing...", font=("Arial", 18, "bold"), text_color="#FFFFFF")
+        header_label = ctk.CTkLabel(self.modal_frame, text="Analyzing...", font=("Arial", 18, "bold"),
+                                    text_color="#FFFFFF")
         header_label.pack(pady=10)
 
         progress_var = StringVar()
@@ -297,14 +302,25 @@ class VolatilityApp(ctk.CTk):
         progress_bar.pack(pady=10, padx=20, fill='x')
         progress_bar.set(0)
 
-        progress_label = ctk.CTkLabel(self.modal_frame, textvariable=progress_var, font=("Arial", 14), text_color="#FFFFFF")
+        progress_label = ctk.CTkLabel(self.modal_frame, textvariable=progress_var, font=("Arial", 14),
+                                      text_color="#FFFFFF")
         progress_label.pack(pady=10)
+
+        # Add Cancel Button
+        cancel_button = ctk.CTkButton(self.modal_frame, text="Cancel", command=self.cancel_analysis,
+                                      fg_color=self.button_color, text_color=self.text_dark,
+                                      hover_color=self.header_color,
+                                      font=self.font)
+        cancel_button.pack(pady=10)
 
         # Start the animation thread
         threading.Thread(target=self.animate_progress_bar, args=(progress_bar, progress_var)).start()
         # Start the volatility execution thread
         threading.Thread(target=self.execute_volatility,
                          args=(file_path, plugin, renderer, verbose, progress_bar, progress_var)).start()
+
+    def cancel_analysis(self):
+        self.cancel_flag = True
 
     def animate_progress_bar(self, progress_bar, progress_var):
         for i in range(101):
@@ -323,6 +339,10 @@ class VolatilityApp(ctk.CTk):
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             total_steps = 100  # Total steps for progress bar simulation
             for step in range(total_steps):
+                if self.cancel_flag:
+                    process.terminate()
+                    self.create_result_tab(plugin, renderer, "Analysis canceled by user.")
+                    return
                 time.sleep(0.1)  # Simulate work being done
                 progress = (step + 1) / total_steps
                 progress_var.set(f"{int(progress * 100)}%")
