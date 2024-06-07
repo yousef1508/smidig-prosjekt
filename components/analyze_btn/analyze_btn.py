@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from tkinter import filedialog, StringVar, messagebox, Text
+import tkinter as tk  # Add this line
 import os
 import time
 import subprocess
@@ -14,11 +15,9 @@ from tkinter import ttk
 CONFIG_FILE = "config.json"
 LOG_FILE = "app.log"
 
-
 # Setup logging
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
 
 def load_volatility_path():
     if os.path.exists(CONFIG_FILE):
@@ -27,12 +26,10 @@ def load_volatility_path():
             return config.get("VOLATILITY_PATH", None)
     return None
 
-
 def save_volatility_path(path):
     config = {"VOLATILITY_PATH": path}
     with open(CONFIG_FILE, 'w') as config_file:
         json.dump(config, config_file)
-
 
 def prompt_for_volatility_path():
     path = filedialog.askopenfilename(
@@ -44,7 +41,6 @@ def prompt_for_volatility_path():
         return path
     return None
 
-
 def get_volatility_path():
     path = load_volatility_path()
     if not path or not os.path.exists(path):
@@ -55,6 +51,17 @@ def get_volatility_path():
             exit()
     return path
 
+# Define the search_text function
+def search_text(tree, search_var, content):
+    search_term = search_var.get().lower()
+    for item in tree.get_children():
+        tree.delete(item)
+
+    for line in content.splitlines()[2:]:  # Skip the header line
+        values = line.split()
+        values = [value for value in values if value.strip()]
+        if any(search_term in value.lower() for value in values):
+            tree.insert("", "end", values=values)
 
 class VolatilityApp(ctk.CTk):
     def __init__(self):
@@ -80,7 +87,6 @@ class VolatilityApp(ctk.CTk):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure([0, 1, 2, 3, 4, 5, 6, 7, 8], weight=1)
-
 
         # Path variable to store the selected file path
         self.file_path_var = StringVar(value="No file selected")
@@ -393,8 +399,20 @@ class VolatilityApp(ctk.CTk):
         text_widget = Text(tab_frame, wrap="word", bg="#262626", fg="#F5F5F5", font=("Arial", 14), padx=10, pady=10)
         text_widget.insert("1.0", content)
         text_widget.pack(padx=10, pady=10, fill='both', expand=True)
+        return text_widget
 
     def display_treeview_content(self, tab_frame, content):
+        search_var = StringVar()
+
+        search_entry = ctk.CTkEntry(tab_frame, textvariable=search_var, fg_color=self.input_field_color,
+                                    text_color=self.text_bright, font=self.font)
+        search_entry.pack(pady=10, padx=10, side="left")
+
+        search_button = ctk.CTkButton(tab_frame, text="Search", command=lambda: search_text(tree, search_var, content),
+                                      fg_color=self.button_color, text_color=self.text_dark,
+                                      hover_color=self.header_color, font=self.font)
+        search_button.pack(pady=10, padx=10, side="left")
+
         lines = content.splitlines()
         if not lines:
             return
@@ -542,5 +560,3 @@ class VolatilityApp(ctk.CTk):
                                      fg_color=self.button_color, text_color=self.text_dark,
                                      hover_color=self.header_color, font=self.font)
         close_button.pack(pady=10)
-
-
