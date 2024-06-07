@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import filedialog, StringVar, messagebox, Text
-import tkinter as tk  # Add this line
+import tkinter as tk
 import os
 import time
 import subprocess
@@ -62,6 +62,15 @@ def search_text(tree, search_var, content):
         values = [value for value in values if value.strip()]
         if any(search_term in value.lower() for value in values):
             tree.insert("", "end", values=values)
+
+def remove_search(tree, content):
+    for item in tree.get_children():
+        tree.delete(item)
+
+    for line in content.splitlines()[2:]:  # Skip the header line
+        values = line.split()
+        values = [value for value in values if value.strip()]
+        tree.insert("", "end", values=values)
 
 class VolatilityApp(ctk.CTk):
     def __init__(self):
@@ -192,6 +201,7 @@ class VolatilityApp(ctk.CTk):
         with open("settings.json", "w") as settings_file:
             json.dump(settings, settings_file)
         messagebox.showinfo("Settings", "Settings saved successfully.")
+
     def show_help(self):
         help_text = """
         Welcome to the Volatility 3 Analysis Tool!
@@ -406,12 +416,27 @@ class VolatilityApp(ctk.CTk):
 
         search_entry = ctk.CTkEntry(tab_frame, textvariable=search_var, fg_color=self.input_field_color,
                                     text_color=self.text_bright, font=self.font)
-        search_entry.pack(pady=10, padx=10, side="left")
+        search_entry.pack(pady=10, padx=10, anchor="w")
 
         search_button = ctk.CTkButton(tab_frame, text="Search", command=lambda: search_text(tree, search_var, content),
                                       fg_color=self.button_color, text_color=self.text_dark,
                                       hover_color=self.header_color, font=self.font)
-        search_button.pack(pady=10, padx=10, side="left")
+        search_button.pack(pady=5, padx=10, anchor="w")
+
+        button_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
+        button_frame.pack(pady=5, padx=10, anchor="w", fill="x")
+
+        remove_search_button = ctk.CTkButton(button_frame, text="Remove Search",
+                                             command=lambda: remove_search(tree, content),
+                                             fg_color=self.button_color, text_color=self.text_dark,
+                                             hover_color=self.header_color, font=self.font)
+        remove_search_button.pack(side="left", padx=5, pady=5)
+
+        flip_button = ctk.CTkButton(button_frame, text="Flip Result",
+                                    command=lambda: self.flip_treeview_content(tree),
+                                    fg_color=self.button_color, text_color=self.text_dark,
+                                    hover_color=self.header_color, font=self.font)
+        flip_button.pack(side="left", padx=5, pady=5)
 
         lines = content.splitlines()
         if not lines:
@@ -458,6 +483,11 @@ class VolatilityApp(ctk.CTk):
             tree.insert("", "end", values=values)
 
         tree.pack(padx=10, pady=10, fill='both', expand=True)
+
+    def flip_treeview_content(self, tree):
+        children = tree.get_children()
+        for child in reversed(children):
+            tree.move(child, '', 'end')
 
     def close_tab(self, tab_name):
         self.tabview.delete(tab_name)
