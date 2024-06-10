@@ -24,7 +24,7 @@ def create_plugin_dropdown(self, plugins, master):
         text_color=self.text_bright, button_color=self.button_color, button_hover_color=self.header_color,
         font=self.font, width=200
     )
-    self.plugin_dropdown.pack(side="left", padx=(0, 20))  # Ensure spacing is maintained
+    self.plugin_dropdown.pack(side="right", padx=(0, 20))  # Ensure spacing is maintained
 
 
 def update_plugin_dropdown(self, file_path):

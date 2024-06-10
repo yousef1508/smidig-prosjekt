@@ -7,8 +7,7 @@ import time
 import subprocess
 import threading
 import logging
-from volatility3.framework import contexts, constants
-from volatility3 import framework, plugins
+
 from tkinter import ttk
 from help_btn.help_btn import show_help
 from settings_btn import settings
@@ -68,10 +67,10 @@ class VolatilityApp(ctk.CTk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure([0, 1, 2, 3, 4, 5, 6, 7, 8], weight=1)
         self.file_path_var = StringVar(value="No file selected")
-        self.plugin_dropdown_var = StringVar(value="Load file to select plugin")
-        self.renderer_var = StringVar(value="none")
-        self.verbose_var = ctk.BooleanVar(value=False)
+        self.renderer_var = StringVar(value="select output format")
         self.plugin_dropdown = None
+        self.plugin_dropdown_var = StringVar(value="Load file to select plugin")
+        self.verbose_var = ctk.BooleanVar(value=False)
         self.tabview = ctk.CTkTabview(self)
         self.tabview.grid(row=8, column=0, columnspan=2, padx=20, pady=20, sticky="ew")
         header = ctk.CTkLabel(self, text="File Analysis", font=("Arial", 24, "bold"), text_color=self.text_bright,
@@ -85,12 +84,12 @@ class VolatilityApp(ctk.CTk):
         file_label.grid(row=2, column=0, columnspan=2, padx=20, pady=10, sticky="n")
         self.dropdown_frame = ctk.CTkFrame(self, fg_color=self.background_color)
         self.dropdown_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=10, sticky="n")
-        self.create_plugin_dropdown(["Load file to select plugin"], master=self.dropdown_frame)
         renderer_dropdown = ctk.CTkOptionMenu(
-            master=self.dropdown_frame, variable=self.renderer_var, values=["none", "quick", "pretty"],
+            master=self.dropdown_frame, variable=self.renderer_var, values=["quick", "pretty"],
             fg_color=self.input_field_color, text_color=self.text_bright, button_color=self.button_color,
             button_hover_color=self.header_color, font=self.font, width=200
         )
+        self.create_plugin_dropdown(["Load file to select plugin"], master=self.dropdown_frame)
         renderer_dropdown.pack(side="left", padx=(0, 20))
         verbose_checkbox = ctk.CTkCheckBox(
             self, text="Verbose", variable=self.verbose_var, onvalue=True, offvalue=False,
@@ -111,9 +110,9 @@ class VolatilityApp(ctk.CTk):
 
     def setup_ui(self):
         self.file_path_var = StringVar(value="No file selected")
+        self.renderer_var = StringVar(value="quick")
         self.plugin_dropdown_var = StringVar(value="Load file to select plugin")
         self.verbose_var = ctk.BooleanVar(value=False)
-        self.renderer_var = StringVar(value="none")
 
         def change_theme(self, new_theme):
             ctk.set_appearance_mode(new_theme.lower())
