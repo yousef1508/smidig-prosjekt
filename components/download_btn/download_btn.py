@@ -1,26 +1,49 @@
-import customtkinter as ctk
-from tkinter import filedialog
-import os
+import json
+import csv
+from tkinter import messagebox
 
-def save_result():
-    file_path = filedialog.asksaveasfilename(defaultextension=".txt",
-                                             filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
-    if file_path:
-        with open(file_path, 'w') as file:
-            file.write("Your result text goes here")
+def save_results_to_file(output, file_path, file_format):
+    """
+    Saves the analysis results to a specified file.
 
-def create_save_button(root):
-    save_button = ctk.CTkButton(master=root, text="Download", command=save_result)
-    save_button.pack(pady=20)
+    :param output: The analysis results to export.
+    :param file_path: The path where the results should be saved.
+    :param file_format: The format in which to save the results (json, csv, pdf).
+    """
+    try:
+        if not output:
+            raise ValueError("Output is empty")
 
-    return save_button
+        # Validate file path
+        if not file_path:
+            raise ValueError("File path is empty")
 
-def main():
-    app = ctk.CTk()
-    app.title("Save File Example")
+        if not isinstance(file_path, str):
+            raise TypeError("File path must be a string")
 
-    create_save_button(app)
-    app.mainloop()
+        # Validate file format
+        if file_format not in ['json', 'csv', 'pdf']:
+            raise ValueError("Unsupported file format")
 
-if __name__ == "__main__":
-    main()
+        if file_format == 'json':
+            if not file_path.endswith('.json'):
+                file_path += '.json'
+            with open(file_path, 'w') as file:
+                json.dump(output, file, indent=4)
+        elif file_format == 'csv':
+            if not file_path.endswith('.csv'):
+                file_path += '.csv'
+            with open(file_path, 'w', newline='') as file:
+                writer = csv.writer(file)
+                for line in output.splitlines():
+                    writer.writerow(line.split('\t'))
+        elif file_format == 'pdf':
+            if not file_path.endswith('.pdf'):
+                file_path += '.pdf'
+            with open(file_path, 'w') as file:
+                for line in output.splitlines():
+                    file.write(line + '\n')
+
+        messagebox.showinfo("Success", f"Results successfully exported to {file_path}")
+    except Exception as e:
+        messagebox.showerror("Error", f"Error exporting results: {e}")
