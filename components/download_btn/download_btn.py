@@ -1,4 +1,3 @@
-import json
 import csv
 from tkinter import messagebox
 
@@ -8,7 +7,7 @@ def save_results_to_file(output, file_path, file_format):
 
     :param output: The analysis results to export.
     :param file_path: The path where the results should be saved.
-    :param file_format: The format in which to save the results (json, csv, pdf).
+    :param file_format: The format in which to save the results (csv, pdf).
     """
     try:
         if not output:
@@ -22,15 +21,10 @@ def save_results_to_file(output, file_path, file_format):
             raise TypeError("File path must be a string")
 
         # Validate file format
-        if file_format not in ['json', 'csv', 'pdf']:
+        if file_format not in ['csv', 'pdf']:
             raise ValueError("Unsupported file format")
 
-        if file_format == 'json':
-            if not file_path.endswith('.json'):
-                file_path += '.json'
-            with open(file_path, 'w') as file:
-                json.dump(output, file, indent=4)
-        elif file_format == 'csv':
+        if file_format == 'csv':
             if not file_path.endswith('.csv'):
                 file_path += '.csv'
             with open(file_path, 'w', newline='') as file:
