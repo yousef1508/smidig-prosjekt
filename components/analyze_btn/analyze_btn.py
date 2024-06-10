@@ -10,13 +10,9 @@ import logging
 from volatility3.framework import contexts, constants
 from volatility3 import framework, plugins
 from tkinter import ttk
-from components.settings_btn import settings  # Import the settings module
-from components.settings_btn.settings import (
-    load_volatility_path,
-    save_volatility_path,
-    prompt_for_volatility_path,
-    get_volatility_path
-)
+from settings_btn import settings  # Import the settings module
+from settings_btn.settings import (load_volatility_path, save_volatility_path,
+    prompt_for_volatility_path,  get_volatility_path)
 
 # Configuration file path
 CONFIG_FILE = "config.json"
