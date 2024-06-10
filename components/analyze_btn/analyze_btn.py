@@ -10,9 +10,8 @@ import logging
 from volatility3.framework import contexts, constants
 from volatility3 import framework, plugins
 from tkinter import ttk
-from help_btn.help_btn import show_help
-from settings_btn import settings  # Import the settings module
-from settings_btn.settings import (
+from components.settings_btn import settings  # Import the settings module
+from components.settings_btn.settings import (
     load_volatility_path,
     save_volatility_path,
     prompt_for_volatility_path,
@@ -167,7 +166,7 @@ class VolatilityApp(ctk.CTk):
                 self.verbose_var.set(settings.get("verbose", False))
 
     def close_settings_modal(
-            self):
+            self):  # new code #new code #new code #new code #new code #new code #new code #new code #new code #new code #new code #new code #new code
         # Call the close_settings_modal method from the settings module
         settings.close_settings_modal(self)
 
@@ -205,8 +204,19 @@ class VolatilityApp(ctk.CTk):
         messagebox.showinfo("Settings", "Settings saved successfully.")
 
     def show_help(self):
-        # Call the show_help method from the helpers module
-        show_help()
+        help_text = """
+        Welcome to the Volatility 3 Analysis Tool!
+
+        1. Select a memory dump file.
+        2. Choose a plugin from the dropdown.
+        3. Choose a renderer option.
+        4. Click 'Analyze' to run the analysis.
+        5. View the results in the tabbed interface.
+
+        For more information, refer to the official Volatility 3 documentation.
+        """
+        messagebox.showinfo("Help", help_text)
+
     def select_file(self):
         file_path = filedialog.askopenfilename(
             title="Select a Memory Dump File",
