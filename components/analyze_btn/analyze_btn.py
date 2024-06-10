@@ -63,7 +63,8 @@ def search_text(tree, search_var, content):
         if any(search_term in value.lower() for value in values):
             tree.insert("", "end", values=values)
 
-def remove_search(tree, content):
+def remove_search(tree, content, search_var):
+    search_var.set("")  # Clear the search input field
     for item in tree.get_children():
         tree.delete(item)
 
@@ -414,29 +415,24 @@ class VolatilityApp(ctk.CTk):
     def display_treeview_content(self, tab_frame, content):
         search_var = StringVar()
 
-        search_entry = ctk.CTkEntry(tab_frame, textvariable=search_var, fg_color=self.input_field_color,
-                                    text_color=self.text_bright, font=self.font)
-        search_entry.pack(pady=10, padx=10, anchor="w")
+        search_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
+        search_frame.pack(pady=10)
 
-        search_button = ctk.CTkButton(tab_frame, text="Search", command=lambda: search_text(tree, search_var, content),
+        search_entry = ctk.CTkEntry(search_frame, textvariable=search_var, fg_color=self.input_field_color,
+                                    text_color=self.text_bright, font=self.font)
+        search_entry.grid(row=0, column=0, padx=10, pady=10)
+        search_entry.bind("<Return>", lambda event: search_text(tree, search_var, content))  # Bind Enter key to search
+
+        search_button = ctk.CTkButton(search_frame, text="Search", command=lambda: search_text(tree, search_var, content),
                                       fg_color=self.button_color, text_color=self.text_dark,
                                       hover_color=self.header_color, font=self.font)
-        search_button.pack(pady=5, padx=10, anchor="w")
+        search_button.grid(row=0, column=1, padx=10, pady=10)
 
-        button_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
-        button_frame.pack(pady=5, padx=10, anchor="w", fill="x")
-
-        remove_search_button = ctk.CTkButton(button_frame, text="Remove Search",
-                                             command=lambda: remove_search(tree, content),
+        remove_search_button = ctk.CTkButton(search_frame, text="Remove Search",
+                                             command=lambda: remove_search(tree, content, search_var),
                                              fg_color=self.button_color, text_color=self.text_dark,
                                              hover_color=self.header_color, font=self.font)
-        remove_search_button.pack(side="left", padx=5, pady=5)
-
-        flip_button = ctk.CTkButton(button_frame, text="Flip Result",
-                                    command=lambda: self.flip_treeview_content(tree),
-                                    fg_color=self.button_color, text_color=self.text_dark,
-                                    hover_color=self.header_color, font=self.font)
-        flip_button.pack(side="left", padx=5, pady=5)
+        remove_search_button.grid(row=0, column=2, padx=10, pady=10)
 
         lines = content.splitlines()
         if not lines:
@@ -483,11 +479,6 @@ class VolatilityApp(ctk.CTk):
             tree.insert("", "end", values=values)
 
         tree.pack(padx=10, pady=10, fill='both', expand=True)
-
-    def flip_treeview_content(self, tree):
-        children = tree.get_children()
-        for child in reversed(children):
-            tree.move(child, '', 'end')
 
     def close_tab(self, tab_name):
         self.tabview.delete(tab_name)
@@ -590,3 +581,8 @@ class VolatilityApp(ctk.CTk):
                                      fg_color=self.button_color, text_color=self.text_dark,
                                      hover_color=self.header_color, font=self.font)
         close_button.pack(pady=10)
+
+# Run the application
+if __name__ == "__main__":
+    app = VolatilityApp()
+    app.mainloop()
