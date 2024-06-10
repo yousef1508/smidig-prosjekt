@@ -2,6 +2,7 @@ import customtkinter as ctk
 from tkinter import filedialog, StringVar, messagebox, Text
 import tkinter as tk
 import os
+import queue
 import time
 import subprocess
 import threading
@@ -9,16 +10,16 @@ import logging
 from volatility3.framework import contexts, constants
 from volatility3 import framework, plugins
 from tkinter import ttk
-from components.help_btn.help_btn import show_help
-from components.settings_btn import settings
-from components.settings_btn.settings import (
+from help_btn.help_btn import show_help
+from settings_btn import settings
+from settings_btn.settings import (
     load_volatility_path,
     save_volatility_path,
     prompt_for_volatility_path,
     get_volatility_path
 )
-from components.file_selection.file_selection_helpers import select_file, create_plugin_dropdown, update_plugin_dropdown, get_volatility_plugins, categorize_plugins
-from components.download_btn.download_btn import save_results_to_file
+from file_selection.file_selection_helpers import select_file, create_plugin_dropdown, update_plugin_dropdown, get_volatility_plugins, categorize_plugins
+from download_btn.download_btn import save_results_to_file
 
 LOG_FILE = "app.log"
 
@@ -117,9 +118,6 @@ class VolatilityApp(ctk.CTk):
         def change_theme(self, new_theme):
             ctk.set_appearance_mode(new_theme.lower())
 
-    def close_settings_modal(self):
-        settings.close_settings_modal(self)
-
     def apply_theme(self):
         settings.apply_theme(self)
 
@@ -187,15 +185,29 @@ class VolatilityApp(ctk.CTk):
                                       fg_color=self.button_color, text_color=self.text_dark,
                                       hover_color=self.header_color, font=self.font)
         cancel_button.pack(pady=10)
-        threading.Thread(target=self.animate_progress_bar, args=(progress_bar, progress_var)).start()
-        threading.Thread(target=self.execute_volatility,
-                         args=(file_path, plugin, renderer, verbose, progress_bar, progress_var)).start()
+
+        self.queue = queue.Queue()
+        threading.Thread(target=self.process_queue).start()
+
+        self.queue.put(lambda: self.animate_progress_bar(progress_bar, progress_var))
+        self.queue.put(
+            lambda: self.execute_volatility(file_path, plugin, renderer, verbose, progress_bar, progress_var))
 
     def cancel_analysis(self):
         self.cancel_flag = True
 
+    def process_queue(self):
+        while True:
+            task = self.queue.get()
+            if task is None:
+                break
+            task()
+            self.queue.task_done()
+
     def animate_progress_bar(self, progress_bar, progress_var):
         for i in range(101):
+            if self.cancel_flag:
+                return
             time.sleep(1.2)
             progress_var.set(f"{i}%")
             progress_bar.set(i / 100)
@@ -259,14 +271,14 @@ class VolatilityApp(ctk.CTk):
 
         self.tabview.set(tab_name)
 
-        save_button = ctk.CTkButton(tab_frame, text="Save Results", command=lambda: self.save_results(content),
+        save_button = ctk.CTkButton(tab_frame, text="Export", command=lambda: self.save_results(content),
                                      fg_color=self.button_color, text_color=self.text_dark,
                                      hover_color=self.header_color, font=self.font)
         save_button.pack(pady=10)
 
     def save_results(self, content):
         file_path = filedialog.asksaveasfilename(
-            title="Save Results",
+            title="Export",
             defaultextension=".csv",
             filetypes=[("CSV files", "*.csv"), ("PDF files", "*.pdf")],
             initialdir=os.getcwd()
