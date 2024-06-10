@@ -63,7 +63,8 @@ def search_text(tree, search_var, content):
         if any(search_term in value.lower() for value in values):
             tree.insert("", "end", values=values)
 
-def remove_search(tree, content):
+def remove_search(tree, content, search_var):
+    search_var.set("")  # Clear the search input field
     for item in tree.get_children():
         tree.delete(item)
 
@@ -414,29 +415,35 @@ class VolatilityApp(ctk.CTk):
     def display_treeview_content(self, tab_frame, content):
         search_var = StringVar()
 
-        search_entry = ctk.CTkEntry(tab_frame, textvariable=search_var, fg_color=self.input_field_color,
-                                    text_color=self.text_bright, font=self.font)
-        search_entry.pack(pady=10, padx=10, anchor="w")
+        search_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
+        search_frame.pack(pady=10)
 
-        search_button = ctk.CTkButton(tab_frame, text="Search", command=lambda: search_text(tree, search_var, content),
+        search_entry = ctk.CTkEntry(search_frame, textvariable=search_var, fg_color=self.input_field_color,
+                                    text_color=self.text_bright, font=self.font, width=150, justify='center')
+        search_entry.grid(row=0, column=0, padx=10, pady=10)
+        search_entry.insert(0, "Enter Search")  # Add placeholder text
+        search_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, search_entry))
+        search_entry.bind("<FocusOut>", lambda event: self.add_placeholder(event, search_entry))
+
+        search_entry.bind("<Return>", lambda event: search_text(tree, search_var, content))  # Bind Enter key to search
+
+        search_button = ctk.CTkButton(search_frame, text="Search",
+                                      command=lambda: search_text(tree, search_var, content),
                                       fg_color=self.button_color, text_color=self.text_dark,
-                                      hover_color=self.header_color, font=self.font)
-        search_button.pack(pady=5, padx=10, anchor="w")
+                                      hover_color=self.header_color, font=self.font, width=150)
+        search_button.grid(row=0, column=1, padx=10, pady=10)
 
-        button_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
-        button_frame.pack(pady=5, padx=10, anchor="w", fill="x")
-
-        remove_search_button = ctk.CTkButton(button_frame, text="Remove Search",
-                                             command=lambda: remove_search(tree, content),
+        remove_search_button = ctk.CTkButton(search_frame, text="Remove Search",
+                                             command=lambda: remove_search(tree, content, search_var),
                                              fg_color=self.button_color, text_color=self.text_dark,
-                                             hover_color=self.header_color, font=self.font)
-        remove_search_button.pack(side="left", padx=5, pady=5)
+                                             hover_color=self.header_color, font=self.font, width=150)
+        remove_search_button.grid(row=0, column=2, padx=10, pady=10)
 
-        flip_button = ctk.CTkButton(button_frame, text="Flip Result",
-                                    command=lambda: self.flip_treeview_content(tree),
-                                    fg_color=self.button_color, text_color=self.text_dark,
-                                    hover_color=self.header_color, font=self.font)
-        flip_button.pack(side="left", padx=5, pady=5)
+        expand_button = ctk.CTkButton(search_frame, text="Expand",
+                                      command=lambda: self.expand_treeview(tree_frame, expand_button),
+                                      fg_color=self.button_color, text_color=self.text_dark,
+                                      hover_color=self.header_color, font=self.font, width=150)
+        expand_button.grid(row=0, column=3, padx=10, pady=10)
 
         lines = content.splitlines()
         if not lines:
@@ -445,7 +452,11 @@ class VolatilityApp(ctk.CTk):
         headers = lines[0].split()
         headers = [header for header in headers if header.strip()]
 
-        tree = ttk.Treeview(tab_frame, columns=headers, show="headings")
+        tree_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
+        tree_frame.pack(padx=10, pady=10, fill='both', expand=True)
+        tree_frame.configure(height=400)  # Set the initial height
+
+        tree = ttk.Treeview(tree_frame, columns=headers, show="headings")
 
         for header in headers:
             tree.heading(header, text=header)
@@ -483,11 +494,31 @@ class VolatilityApp(ctk.CTk):
             tree.insert("", "end", values=values)
 
         tree.pack(padx=10, pady=10, fill='both', expand=True)
+        tree_frame.pack_propagate(False)  # Prevent the frame from resizing to fit the content
 
-    def flip_treeview_content(self, tree):
-        children = tree.get_children()
-        for child in reversed(children):
-            tree.move(child, '', 'end')
+        # Track the state of expansion
+        tree_frame.expanded = False
+
+    def clear_placeholder(self, event, entry):
+        if entry.get() == "Enter Search":
+            entry.delete(0, tk.END)
+            entry.config(fg=self.text_bright, justify='left')
+
+    def add_placeholder(self, event, entry):
+        if not entry.get():
+            entry.insert(0, "Enter Search")
+            entry.config(fg="grey", justify='center')  # Use a lighter color for the placeholder text
+
+    def expand_treeview(self, tree_frame, button):
+        if not tree_frame.expanded:
+            new_height = 800  # Increase the height to 800 pixels
+            button.configure(text="Collapse")
+        else:
+            new_height = 400  # Return to initial height
+            button.configure(text="Expand")
+
+        tree_frame.configure(height=new_height)
+        tree_frame.expanded = not tree_frame.expanded  # Toggle the state
 
     def close_tab(self, tab_name):
         self.tabview.delete(tab_name)
@@ -590,3 +621,8 @@ class VolatilityApp(ctk.CTk):
                                      fg_color=self.button_color, text_color=self.text_dark,
                                      hover_color=self.header_color, font=self.font)
         close_button.pack(pady=10)
+
+# Run the application
+if __name__ == "__main__":
+    app = VolatilityApp()
+    app.mainloop()
