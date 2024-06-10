@@ -1,5 +1,4 @@
-# components/settings_btn/settings.py
-
+#   settings_btn/settings.py
 import os
 import json
 import customtkinter as ctk
