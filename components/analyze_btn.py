@@ -277,7 +277,7 @@ class VolatilityApp(ctk.CTk):
         file_path = filedialog.asksaveasfilename(
             title="Export",
             defaultextension=".csv",
-            filetypes=[("CSV files", "*.csv"), ("PDF files", "*.pdf")],
+            filetypes=[("CSV files", "*.csv"), ("PDF files", "*.pdf"), ("Text files", "*.txt")],
             initialdir=os.getcwd()
         )
         if file_path:
