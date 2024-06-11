@@ -7,7 +7,6 @@ import time
 import subprocess
 import threading
 import logging
-from tkinter import ttk
 import settings
 from help_btn import show_help
 from settings import (
@@ -24,33 +23,26 @@ LOG_FILE = "app.log"
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-def search_text(tree, search_var, content):
+def search_text(text_widget, search_var, content):
     search_term = search_var.get().lower()
-    for item in tree.get_children():
-        tree.delete(item)
+    text_widget.delete("1.0", tk.END)  # Clear the text widget
 
-    for line in content.splitlines()[2:]:
-        values = line.split()
-        values = [value for value in values if value.strip()]
-        if any(search_term in value.lower() for value in values):
-            tree.insert("", "end", values=values)
+    for line in content.splitlines():
+        if search_term in line.lower():
+            text_widget.insert(tk.END, line + "\n")
 
-def remove_search(tree, content, search_var):
+def remove_search(text_widget, content, search_var):
     search_var.set("")
-    for item in tree.get_children():
-        tree.delete(item)
+    text_widget.delete("1.0", tk.END)  # Clear the text widget
 
-    for line in content.splitlines()[2:]:
-        values = line.split()
-        values = [value for value in values if value.strip()]
-        tree.insert("", "end", values=values)
+    for line in content.splitlines():
+        text_widget.insert(tk.END, line + "\n")
 
 class VolatilityApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.main_window_destroyed = False
         self.title("Volatility 3 Analysis Tool")
-        self.geometry("900x900")
         self.setup_ui()
         self.tab_names = set()
         self.background_color = "#262626"
@@ -302,17 +294,16 @@ class VolatilityApp(ctk.CTk):
         search_entry.insert(0, "Enter Search")
         search_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, search_entry))
         search_entry.bind("<FocusOut>", lambda event: self.add_placeholder(event, search_entry))
-
-        search_entry.bind("<Return>", lambda event: search_text(tree, search_var, content))
+        search_entry.bind("<Return>", lambda event: search_text(text_widget, search_var, content))
 
         search_button = ctk.CTkButton(search_frame, text="Search",
-                                      command=lambda: search_text(tree, search_var, content),
+                                      command=lambda: search_text(text_widget, search_var, content),
                                       fg_color=self.button_color, text_color=self.text_dark,
                                       hover_color=self.header_color, font=self.font, width=150)
         search_button.grid(row=0, column=1, padx=10, pady=10)
 
         remove_search_button = ctk.CTkButton(search_frame, text="Remove Search",
-                                             command=lambda: remove_search(tree, content, search_var),
+                                             command=lambda: remove_search(text_widget, content, search_var),
                                              fg_color=self.button_color, text_color=self.text_dark,
                                              hover_color=self.header_color, font=self.font, width=150)
         remove_search_button.grid(row=0, column=2, padx=10, pady=10)
@@ -323,55 +314,13 @@ class VolatilityApp(ctk.CTk):
                                       hover_color=self.header_color, font=self.font, width=150)
         expand_button.grid(row=0, column=3, padx=10, pady=10)
 
-        lines = content.splitlines()
-        if not lines:
-            return
-
-        headers = lines[0].split()
-        headers = [header for header in headers if header.strip()]
-
         tree_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
         tree_frame.pack(padx=10, pady=10, fill='both', expand=True)
         tree_frame.configure(height=400)
 
-        tree = ttk.Treeview(tree_frame, columns=headers, show="headings")
-
-        for header in headers:
-            tree.heading(header, text=header)
-
-        style = ttk.Style()
-        style.configure("Treeview",
-                        background="#262626",
-                        foreground="#F5F5F5",
-                        fieldbackground="#262626",
-                        rowheight=25,
-                        font=("Arial", 14))
-
-        style.configure("Treeview.Heading",
-                        background="#222222",
-                        foreground="#222222",
-                        font=("Arial", 14, "bold"))
-
-        style.map("Treeview",
-                  background=[('selected', '#474747')],
-                  foreground=[('selected', '#F5F5F5')])
-
-        style.layout("Treeview.Heading", [
-            ('Treeheading.cell', {'sticky': 'nswe'}),
-            ('Treeheading.border', {'sticky': 'nswe', 'children': [
-                ('Treeheading.padding', {'sticky': 'nswe', 'children': [
-                    ('Treeheading.image', {'side': 'right', 'sticky': ''}),
-                    ('Treeheading.text', {'sticky': 'we'})
-                ]})
-            ]})
-        ])
-
-        for line in lines[2:]:
-            values = line.split()
-            values = [value for value in values if value.strip()]
-            tree.insert("", "end", values=values)
-
-        tree.pack(padx=10, pady=10, fill='both', expand=True)
+        text_widget = Text(tree_frame, wrap="word", bg="#262626", fg="#F5F5F5", font=("Arial", 14), padx=10, pady=10)
+        text_widget.pack(padx=10, pady=10, fill='both', expand=True)
+        text_widget.insert("1.0", content)
         tree_frame.pack_propagate(False)
         tree_frame.expanded = False
 
@@ -399,3 +348,5 @@ class VolatilityApp(ctk.CTk):
     def close_tab(self, tab_name):
         self.tabview.delete(tab_name)
         self.tab_names.remove(tab_name)
+
+
