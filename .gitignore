@@ -80,3 +80,7 @@ dmypy.json
 Pipfile.lock
 .ipynb_checkpoints/
 config.json
+.idea
+.iml
+.venv
+.xml
