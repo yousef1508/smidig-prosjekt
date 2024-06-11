@@ -7,18 +7,15 @@ import time
 import subprocess
 import threading
 import logging
-
 from tkinter import ttk
-from help_btn.help_btn import show_help
-from settings_btn import settings
-from settings_btn.settings import (
-    load_volatility_path,
+import settings
+from help_btn import show_help
+from settings import (
     save_volatility_path,
-    prompt_for_volatility_path,
     get_volatility_path
 )
-from file_selection.file_selection_helpers import select_file, create_plugin_dropdown, update_plugin_dropdown, get_volatility_plugins, categorize_plugins
-from download_btn.download_btn import save_results_to_file
+from file_selection_helpers import select_file, create_plugin_dropdown, update_plugin_dropdown, get_volatility_plugins, categorize_plugins
+from download_btn import save_results_to_file
 
 LOG_FILE = "app.log"
 
@@ -207,7 +204,6 @@ class VolatilityApp(ctk.CTk):
         for i in range(101):
             if self.cancel_flag:
                 return
-            time.sleep(1.2)
             progress_var.set(f"{i}%")
             progress_bar.set(i / 100)
             self.update_idletasks()
@@ -401,7 +397,3 @@ class VolatilityApp(ctk.CTk):
     def close_tab(self, tab_name):
         self.tabview.delete(tab_name)
         self.tab_names.remove(tab_name)
-
-if __name__ == "__main__":
-    app = VolatilityApp()
-    app.mainloop()
