@@ -121,6 +121,8 @@ class VolatilityApp(ctk.CTk):
 
     def change_theme(self, new_theme):
         settings.change_theme(self, new_theme)
+        # Set the appearance mode based on the selected theme
+        ctk.set_appearance_mode("light" if new_theme.lower() == "light" else "dark")
 
     def destroy(self):
         self.main_window_destroyed = True
