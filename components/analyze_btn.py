@@ -75,8 +75,8 @@ class VolatilityApp(ctk.CTk):
         header = ctk.CTkLabel(self, text="File Analysis", font=("Arial", 24, "bold"), text_color=self.text_bright,
                               bg_color=self.background_color)
         header.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="n")
-        file_button = ctk.CTkButton(self, text="Select File", command=self.select_file, fg_color=self.button_color,
-                                    text_color=self.text_dark, hover_color="#5A9", font=self.font, width=150)
+        file_button = ctk.CTkButton(self, text="Select File", command=self.select_file, fg_color="#E46F2E",
+                                    text_color=self.text_dark, hover_color="#5A9", font=self.font, width=100)
         file_button.grid(row=1, column=0, columnspan=2, padx=20, pady=10, sticky="n")
         file_label = ctk.CTkLabel(self, textvariable=self.file_path_var, font=self.font, text_color=self.text_bright,
                                   bg_color=self.background_color)
@@ -95,16 +95,16 @@ class VolatilityApp(ctk.CTk):
             fg_color=self.input_field_color, text_color=self.text_bright, font=self.font
         )
         verbose_checkbox.grid(row=4, column=0, columnspan=2, padx=20, pady=10, sticky="n")
-        analyze_button = ctk.CTkButton(self, text="Analyze", command=self.run_analysis, fg_color=self.button_color,
-                                       text_color=self.text_dark, hover_color="#5A9", font=self.font, width=150)
+        analyze_button = ctk.CTkButton(self, text="Analyze", command=self.run_analysis, fg_color="#E46F2E",
+                                       text_color=self.text_dark, hover_color="#5A9", font=self.font, width=100)
         analyze_button.grid(row=5, column=0, columnspan=2, padx=20, pady=10, sticky="n")
-        help_button = ctk.CTkButton(self, text="Help", command=show_help, fg_color=self.button_color,
-                                    text_color=self.text_dark, hover_color="#5A9", font=self.font, width=150)
-        help_button.grid(row=8, column=1, padx=20, pady=10, sticky="se")
         settings_button = ctk.CTkButton(self, text="Settings", command=self.show_settings_window,
                                         fg_color=self.button_color,
-                                        text_color=self.text_dark, hover_color="#5A9", font=self.font, width=150)
-        settings_button.grid(row=7, column=1, padx=20, pady=10, sticky="se")
+                                        text_color=self.text_dark, hover_color="#5A9", font=self.font, width=70)
+        settings_button.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
+        help_button = ctk.CTkButton(self, text="Help", command=show_help, fg_color=self.button_color,
+                                    text_color=self.text_dark, hover_color="#5A9", font=self.font, width=70)
+        help_button.grid(row=0, column=0, padx=10, pady=40, sticky="nw")
         self.VOLATILITY_PATH = get_volatility_path()
 
     def setup_ui(self):
@@ -258,7 +258,7 @@ class VolatilityApp(ctk.CTk):
 
         close_button = ctk.CTkButton(tab_frame, text="Close Tab", command=lambda: self.close_tab(tab_name),
                                      fg_color=self.button_color, text_color=self.text_dark,
-                                     hover_color=self.header_color, font=self.font)
+                                     hover_color=self.header_color, font=self.font, width=80)
         close_button.pack(pady=10)
 
         if "info" in plugin.lower():
@@ -269,8 +269,8 @@ class VolatilityApp(ctk.CTk):
         self.tabview.set(tab_name)
 
         save_button = ctk.CTkButton(tab_frame, text="Export", command=lambda: self.save_results(content),
-                                     fg_color=self.button_color, text_color=self.text_dark,
-                                     hover_color=self.header_color, font=self.font)
+                                     fg_color="#E46F2E", text_color=self.text_dark,
+                                     hover_color=self.header_color, font=self.font, width=100)
         save_button.pack(pady=10)
 
     def save_results(self, content):
@@ -297,7 +297,7 @@ class VolatilityApp(ctk.CTk):
         search_frame.pack(pady=10)
 
         search_entry = ctk.CTkEntry(search_frame, textvariable=search_var, fg_color=self.input_field_color,
-                                    text_color=self.text_bright, font=self.font, width=150, justify='center')
+                                    text_color=self.text_bright, font=self.font, width=300, justify='center')
         search_entry.grid(row=0, column=0, padx=10, pady=10)
         search_entry.insert(0, "Enter Search")
         search_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, search_entry))
@@ -308,19 +308,19 @@ class VolatilityApp(ctk.CTk):
         search_button = ctk.CTkButton(search_frame, text="Search",
                                       command=lambda: search_text(tree, search_var, content),
                                       fg_color=self.button_color, text_color=self.text_dark,
-                                      hover_color=self.header_color, font=self.font, width=150)
+                                      hover_color=self.header_color, font=self.font, width=80)
         search_button.grid(row=0, column=1, padx=10, pady=10)
 
         remove_search_button = ctk.CTkButton(search_frame, text="Remove Search",
                                              command=lambda: remove_search(tree, content, search_var),
                                              fg_color=self.button_color, text_color=self.text_dark,
-                                             hover_color=self.header_color, font=self.font, width=150)
+                                             hover_color=self.header_color, font=self.font, width=80)
         remove_search_button.grid(row=0, column=2, padx=10, pady=10)
 
         expand_button = ctk.CTkButton(search_frame, text="Expand",
                                       command=lambda: self.expand_treeview(tree_frame, expand_button),
                                       fg_color=self.button_color, text_color=self.text_dark,
-                                      hover_color=self.header_color, font=self.font, width=150)
+                                      hover_color=self.header_color, font=self.font, width=80)
         expand_button.grid(row=0, column=3, padx=10, pady=10)
 
         lines = content.splitlines()
@@ -332,7 +332,7 @@ class VolatilityApp(ctk.CTk):
 
         tree_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
         tree_frame.pack(padx=10, pady=10, fill='both', expand=True)
-        tree_frame.configure(height=400)
+        tree_frame.configure(height=420)
 
         tree = ttk.Treeview(tree_frame, columns=headers, show="headings")
 
@@ -390,7 +390,7 @@ class VolatilityApp(ctk.CTk):
             new_height = 800
             button.configure(text="Collapse")
         else:
-            new_height = 400
+            new_height = 310
             button.configure(text="Expand")
 
         tree_frame.configure(height=new_height)
@@ -399,3 +399,4 @@ class VolatilityApp(ctk.CTk):
     def close_tab(self, tab_name):
         self.tabview.delete(tab_name)
         self.tab_names.remove(tab_name)
+
