@@ -1,5 +1,7 @@
 import csv
 from tkinter import messagebox
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 def save_results_to_file(output, file_path, file_format):
     """
@@ -34,10 +36,25 @@ def save_results_to_file(output, file_path, file_format):
         elif file_format == 'pdf':
             if not file_path.endswith('.pdf'):
                 file_path += '.pdf'
-            with open(file_path, 'w') as file:
-                for line in output.splitlines():
-                    file.write(line + '\n')
+            create_pdf(output, file_path)
 
         messagebox.showinfo("Success", f"Results successfully exported to {file_path}")
     except Exception as e:
         messagebox.showerror("Error", f"Error exporting results: {e}")
+
+def create_pdf(content, file_path):
+    """
+    Creates a PDF file from the provided content using reportlab.
+
+    :param content: The content to be written into the PDF.
+    :param file_path: The path where the PDF should be saved.
+    """
+    c = canvas.Canvas(file_path, pagesize=letter)
+    y = 750  # Initial y position
+    for line in content.splitlines():
+        c.drawString(100, y, line)
+        y -= 15  # Move to the next line
+        if y <= 50:  # Start a new page if y position goes beyond the bottom margin
+            c.showPage()
+            y = 750  # Reset y position for the new page
+    c.save()
