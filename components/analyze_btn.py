@@ -12,7 +12,9 @@ import settings
 from help_btn import show_help
 from settings import (
     save_volatility_path,
-    get_volatility_path
+    get_volatility_path,
+    load_settings,
+    save_settings
 )
 from file_selection_helpers import select_file, create_plugin_dropdown, update_plugin_dropdown, get_volatility_plugins, categorize_plugins
 from download_btn import save_results_to_file
