@@ -12,8 +12,6 @@ from help_btn import show_help
 from settings import (
     save_volatility_path,
     get_volatility_path,
-    load_settings,
-    save_settings
 )
 from file_selection_helpers import (select_file, create_plugin_dropdown,
                                     update_plugin_dropdown, get_volatility_plugins, categorize_plugins)
@@ -114,25 +112,6 @@ class VolatilityApp(ctk.CTk):
         self.plugin_dropdown_var = StringVar(value="Load file to select plugin")
         self.verbose_var = ctk.BooleanVar(value=False)
 
-        def change_theme(self, new_theme):
-            if new_theme.lower() == "light":
-                self.background_color = "#F3EDE4"
-                self.header_color = "#D8D2CB"
-                self.button_color = "#C5BEB4"
-                self.textbox_color = "#EDE6DE"
-                self.input_field_color = "#D0C7BF"
-                self.text_bright = "#4B4A47"
-                self.text_dark = "#FFFFFF"
-            else:
-                # Default to dark theme
-                self.background_color = "#262626"
-                self.header_color = "#222222"
-                self.button_color = "#A9DFD8"
-                self.textbox_color = "#647A77"
-                self.input_field_color = "#474747"
-                self.text_bright = "#F5F5F5"
-                self.text_dark = "#000000"
-            self.apply_theme()
 
     def apply_theme(self):
         self.configure(bg=self.background_color)
