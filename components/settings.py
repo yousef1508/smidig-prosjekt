@@ -83,7 +83,8 @@ def change_theme(self, new_theme):
         self.text_dark = "#000000"
 
     apply_theme(self)
-
+    # Set the appearance mode based on the selected theme
+    ctk.set_appearance_mode("light" if new_theme.lower() == "light" else "dark")
 
 def apply_theme(self):
     self.configure(bg=self.background_color)
