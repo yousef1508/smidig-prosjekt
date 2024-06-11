@@ -311,7 +311,7 @@ class VolatilityApp(ctk.CTk):
         search_frame.pack(pady=10)
 
         search_entry = ctk.CTkEntry(search_frame, textvariable=search_var, fg_color=self.input_field_color,
-                                    text_color=self.text_bright, font=self.font, width=150, justify='center')
+                                    text_color=self.text_bright, font=self.font, width=300, justify='center')
         search_entry.grid(row=0, column=0, padx=10, pady=10)
         search_entry.insert(0, "Enter Search")
         search_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, search_entry))
@@ -338,34 +338,38 @@ class VolatilityApp(ctk.CTk):
 
         tree_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
         tree_frame.pack(padx=10, pady=10, fill='both', expand=True)
-        tree_frame.configure(height=400)
+        tree_frame.configure(height=300)
 
         # Create a Text widget with scrollbars
         text_widget = Text(tree_frame, wrap="none", bg=self.background_color, fg=self.text_bright,
-                           font=("Courier New", 12), padx=10, pady=10)
-        h_scrollbar = tk.Scrollbar(tree_frame, orient=tk.HORIZONTAL, command=text_widget.xview)
-        v_scrollbar = tk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=text_widget.yview)
+                           font=("Courier New", 12), padx=8, pady=8)
 
-        # Configure scrollbar colors
-        h_scrollbar.config(background=self.input_field_color, troughcolor=self.background_color,
-                           activebackground=self.button_color, highlightcolor=self.header_color)
-        v_scrollbar.config(background=self.input_field_color, troughcolor=self.background_color,
-                           activebackground=self.button_color, highlightcolor=self.header_color)
+        # Create horizontal and vertical scrollbars using CTkScrollbar
+        h_scrollbar = ctk.CTkScrollbar(tree_frame, orientation="horizontal", command=text_widget.xview,
+                                       fg_color=self.input_field_color, button_color=self.button_color,
+                                       button_hover_color=self.header_color)
+        v_scrollbar = ctk.CTkScrollbar(tree_frame, orientation="vertical", command=text_widget.yview,
+                                       fg_color=self.input_field_color, button_color=self.button_color,
+                                       button_hover_color=self.header_color)
 
         text_widget.configure(xscrollcommand=h_scrollbar.set, yscrollcommand=v_scrollbar.set)
 
+        # Place the text widget and scrollbars using grid
         text_widget.grid(row=0, column=0, sticky='nsew')
         v_scrollbar.grid(row=0, column=1, sticky='ns')
         h_scrollbar.grid(row=1, column=0, sticky='ew')
 
+        # Configure the grid weights to make the text widget expandable
         tree_frame.grid_rowconfigure(0, weight=1)
         tree_frame.grid_columnconfigure(0, weight=1)
 
+        # Insert the content into the text widget and make it read-only
         text_widget.insert("1.0", content)
-        text_widget.config(state=tk.DISABLED)  # Make text read-only
+        text_widget.config(state=tk.DISABLED)
 
         tree_frame.pack_propagate(False)
         self.expanded_frames[tree_frame] = False
+
     def clear_placeholder(self, event, entry):
         if entry.get() == "Enter Search":
             entry.delete(0, tk.END)
