@@ -7,7 +7,6 @@ import time
 import subprocess
 import threading
 import logging
-from tkinter import ttk
 import settings
 from help_btn import show_help
 from settings import (
@@ -16,7 +15,8 @@ from settings import (
     load_settings,
     save_settings
 )
-from file_selection_helpers import select_file, create_plugin_dropdown, update_plugin_dropdown, get_volatility_plugins, categorize_plugins
+from file_selection_helpers import (select_file, create_plugin_dropdown,
+                                    update_plugin_dropdown, get_volatility_plugins, categorize_plugins)
 from download_btn import save_results_to_file
 
 LOG_FILE = "app.log"
@@ -24,33 +24,33 @@ LOG_FILE = "app.log"
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-def search_text(tree, search_var, content):
+
+def search_text(text_widget, search_var, content):
     search_term = search_var.get().lower()
-    for item in tree.get_children():
-        tree.delete(item)
+    text_widget.config(state=tk.NORMAL)  # Enable editing
+    text_widget.delete("1.0", tk.END)  # Clear the text widget
 
-    for line in content.splitlines()[2:]:
-        values = line.split()
-        values = [value for value in values if value.strip()]
-        if any(search_term in value.lower() for value in values):
-            tree.insert("", "end", values=values)
+    for line in content.splitlines():
+        if search_term in line.lower():
+            text_widget.insert(tk.END, line + "\n")
+    text_widget.config(state=tk.DISABLED)  # Disable editing
 
-def remove_search(tree, content, search_var):
+
+def remove_search(text_widget, content, search_var):
     search_var.set("")
-    for item in tree.get_children():
-        tree.delete(item)
+    text_widget.config(state=tk.NORMAL)  # Enable editing
+    text_widget.delete("1.0", tk.END)  # Clear the text widget
 
-    for line in content.splitlines()[2:]:
-        values = line.split()
-        values = [value for value in values if value.strip()]
-        tree.insert("", "end", values=values)
+    for line in content.splitlines():
+        text_widget.insert(tk.END, line + "\n")
+    text_widget.config(state=tk.DISABLED)  # Disable editing
+
 
 class VolatilityApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.main_window_destroyed = False
         self.title("Volatility 3 Analysis Tool")
-        self.geometry("900x900")
         self.setup_ui()
         self.tab_names = set()
         self.background_color = "#262626"
@@ -106,6 +106,7 @@ class VolatilityApp(ctk.CTk):
                                     text_color=self.text_dark, hover_color="#5A9", font=self.font, width=70)
         help_button.grid(row=0, column=0, padx=10, pady=40, sticky="nw")
         self.VOLATILITY_PATH = get_volatility_path()
+        self.expanded_frames = {}  # Dictionary to track expanded frames
 
     def setup_ui(self):
         self.file_path_var = StringVar(value="No file selected")
@@ -114,13 +115,35 @@ class VolatilityApp(ctk.CTk):
         self.verbose_var = ctk.BooleanVar(value=False)
 
         def change_theme(self, new_theme):
-            ctk.set_appearance_mode(new_theme.lower())
+            if new_theme.lower() == "light":
+                self.background_color = "#F3EDE4"
+                self.header_color = "#D8D2CB"
+                self.button_color = "#C5BEB4"
+                self.textbox_color = "#EDE6DE"
+                self.input_field_color = "#D0C7BF"
+                self.text_bright = "#4B4A47"
+                self.text_dark = "#FFFFFF"
+            else:
+                # Default to dark theme
+                self.background_color = "#262626"
+                self.header_color = "#222222"
+                self.button_color = "#A9DFD8"
+                self.textbox_color = "#647A77"
+                self.input_field_color = "#474747"
+                self.text_bright = "#F5F5F5"
+                self.text_dark = "#000000"
+            self.apply_theme()
 
     def apply_theme(self):
-        settings.apply_theme(self)
-
-    def change_theme(self, new_theme):
-        settings.change_theme(self, new_theme)
+        self.configure(bg=self.background_color)
+        self.tabview.configure(fg_color=self.background_color)
+        for widget in self.winfo_children():
+            if isinstance(widget, ctk.CTkLabel):
+                widget.configure(text_color=self.text_bright, bg_color=self.background_color)
+            elif isinstance(widget, ctk.CTkButton):
+                widget.configure(fg_color=self.button_color, text_color=self.text_dark, hover_color=self.header_color)
+            elif isinstance(widget, ctk.CTkFrame):
+                widget.configure(fg_color=self.background_color)
 
     def destroy(self):
         self.main_window_destroyed = True
@@ -261,34 +284,25 @@ class VolatilityApp(ctk.CTk):
                                      hover_color=self.header_color, font=self.font, width=80)
         close_button.pack(pady=10)
 
-        if "info" in plugin.lower():
-            self.display_info_content(tab_frame, content)
-        else:
-            self.display_treeview_content(tab_frame, content)
+        self.display_treeview_content(tab_frame, content)
 
         self.tabview.set(tab_name)
 
         save_button = ctk.CTkButton(tab_frame, text="Export", command=lambda: self.save_results(content),
-                                     fg_color="#E46F2E", text_color=self.text_dark,
-                                     hover_color=self.header_color, font=self.font, width=100)
+                                    fg_color="#E46F2E", text_color=self.text_dark,
+                                    hover_color=self.header_color, font=self.font, width=100)
         save_button.pack(pady=10)
 
     def save_results(self, content):
         file_path = filedialog.asksaveasfilename(
             title="Export",
             defaultextension=".csv",
-            filetypes=[("CSV files", "*.csv"), ("PDF files", "*.pdf"), ("Text files", "*.txt")],
+            filetypes=[("CSV files", "*.csv"), ("PDF files", "*.pdf")],
             initialdir=os.getcwd()
         )
         if file_path:
             file_format = file_path.split('.')[-1]
             save_results_to_file(content, file_path, file_format)
-
-    def display_info_content(self, tab_frame, content):
-        text_widget = Text(tab_frame, wrap="word", bg="#262626", fg="#F5F5F5", font=("Arial", 14), padx=10, pady=10)
-        text_widget.insert("1.0", content)
-        text_widget.pack(padx=10, pady=10, fill='both', expand=True)
-        return text_widget
 
     def display_treeview_content(self, tab_frame, content):
         search_var = StringVar()
@@ -297,84 +311,61 @@ class VolatilityApp(ctk.CTk):
         search_frame.pack(pady=10)
 
         search_entry = ctk.CTkEntry(search_frame, textvariable=search_var, fg_color=self.input_field_color,
-                                    text_color=self.text_bright, font=self.font, width=300, justify='center')
+                                    text_color=self.text_bright, font=self.font, width=150, justify='center')
         search_entry.grid(row=0, column=0, padx=10, pady=10)
         search_entry.insert(0, "Enter Search")
         search_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, search_entry))
         search_entry.bind("<FocusOut>", lambda event: self.add_placeholder(event, search_entry))
-
-        search_entry.bind("<Return>", lambda event: search_text(tree, search_var, content))
+        search_entry.bind("<Return>", lambda event: search_text(text_widget, search_var, content))
 
         search_button = ctk.CTkButton(search_frame, text="Search",
-                                      command=lambda: search_text(tree, search_var, content),
+                                      command=lambda: search_text(text_widget, search_var, content),
                                       fg_color=self.button_color, text_color=self.text_dark,
-                                      hover_color=self.header_color, font=self.font, width=80)
+                                      hover_color=self.header_color, font=self.font, width=150)
         search_button.grid(row=0, column=1, padx=10, pady=10)
 
         remove_search_button = ctk.CTkButton(search_frame, text="Remove Search",
-                                             command=lambda: remove_search(tree, content, search_var),
+                                             command=lambda: remove_search(text_widget, content, search_var),
                                              fg_color=self.button_color, text_color=self.text_dark,
-                                             hover_color=self.header_color, font=self.font, width=80)
+                                             hover_color=self.header_color, font=self.font, width=150)
         remove_search_button.grid(row=0, column=2, padx=10, pady=10)
 
         expand_button = ctk.CTkButton(search_frame, text="Expand",
                                       command=lambda: self.expand_treeview(tree_frame, expand_button),
                                       fg_color=self.button_color, text_color=self.text_dark,
-                                      hover_color=self.header_color, font=self.font, width=80)
+                                      hover_color=self.header_color, font=self.font, width=150)
         expand_button.grid(row=0, column=3, padx=10, pady=10)
-
-        lines = content.splitlines()
-        if not lines:
-            return
-
-        headers = lines[0].split()
-        headers = [header for header in headers if header.strip()]
 
         tree_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
         tree_frame.pack(padx=10, pady=10, fill='both', expand=True)
-        tree_frame.configure(height=420)
+        tree_frame.configure(height=400)
 
-        tree = ttk.Treeview(tree_frame, columns=headers, show="headings")
+        # Create a Text widget with scrollbars
+        text_widget = Text(tree_frame, wrap="none", bg=self.background_color, fg=self.text_bright,
+                           font=("Courier New", 12), padx=10, pady=10)
+        h_scrollbar = tk.Scrollbar(tree_frame, orient=tk.HORIZONTAL, command=text_widget.xview)
+        v_scrollbar = tk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=text_widget.yview)
 
-        for header in headers:
-            tree.heading(header, text=header)
+        # Configure scrollbar colors
+        h_scrollbar.config(background=self.input_field_color, troughcolor=self.background_color,
+                           activebackground=self.button_color, highlightcolor=self.header_color)
+        v_scrollbar.config(background=self.input_field_color, troughcolor=self.background_color,
+                           activebackground=self.button_color, highlightcolor=self.header_color)
 
-        style = ttk.Style()
-        style.configure("Treeview",
-                        background="#262626",
-                        foreground="#F5F5F5",
-                        fieldbackground="#262626",
-                        rowheight=25,
-                        font=("Arial", 14))
+        text_widget.configure(xscrollcommand=h_scrollbar.set, yscrollcommand=v_scrollbar.set)
 
-        style.configure("Treeview.Heading",
-                        background="#222222",
-                        foreground="#222222",
-                        font=("Arial", 14, "bold"))
+        text_widget.grid(row=0, column=0, sticky='nsew')
+        v_scrollbar.grid(row=0, column=1, sticky='ns')
+        h_scrollbar.grid(row=1, column=0, sticky='ew')
 
-        style.map("Treeview",
-                  background=[('selected', '#474747')],
-                  foreground=[('selected', '#F5F5F5')])
+        tree_frame.grid_rowconfigure(0, weight=1)
+        tree_frame.grid_columnconfigure(0, weight=1)
 
-        style.layout("Treeview.Heading", [
-            ('Treeheading.cell', {'sticky': 'nswe'}),
-            ('Treeheading.border', {'sticky': 'nswe', 'children': [
-                ('Treeheading.padding', {'sticky': 'nswe', 'children': [
-                    ('Treeheading.image', {'side': 'right', 'sticky': ''}),
-                    ('Treeheading.text', {'sticky': 'we'})
-                ]})
-            ]})
-        ])
+        text_widget.insert("1.0", content)
+        text_widget.config(state=tk.DISABLED)  # Make text read-only
 
-        for line in lines[2:]:
-            values = line.split()
-            values = [value for value in values if value.strip()]
-            tree.insert("", "end", values=values)
-
-        tree.pack(padx=10, pady=10, fill='both', expand=True)
         tree_frame.pack_propagate(False)
-        tree_frame.expanded = False
-
+        self.expanded_frames[tree_frame] = False
     def clear_placeholder(self, event, entry):
         if entry.get() == "Enter Search":
             entry.delete(0, tk.END)
@@ -386,7 +377,11 @@ class VolatilityApp(ctk.CTk):
             entry.config(fg="grey", justify='center')
 
     def expand_treeview(self, tree_frame, button):
-        if not tree_frame.expanded:
+        frame_id = id(tree_frame)
+        if frame_id not in self.expanded_frames:
+            self.expanded_frames[frame_id] = False
+
+        if not self.expanded_frames[frame_id]:
             new_height = 800
             button.configure(text="Collapse")
         else:
@@ -394,9 +389,8 @@ class VolatilityApp(ctk.CTk):
             button.configure(text="Expand")
 
         tree_frame.configure(height=new_height)
-        tree_frame.expanded = not tree_frame.expanded
+        self.expanded_frames[frame_id] = not self.expanded_frames[frame_id]
 
     def close_tab(self, tab_name):
         self.tabview.delete(tab_name)
         self.tab_names.remove(tab_name)
-
