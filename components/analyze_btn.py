@@ -12,7 +12,9 @@ import settings
 from help_btn import show_help
 from settings import (
     save_volatility_path,
-    get_volatility_path
+    get_volatility_path,
+    load_settings,
+    save_settings
 )
 from file_selection_helpers import select_file, create_plugin_dropdown, update_plugin_dropdown, get_volatility_plugins, categorize_plugins
 from download_btn import save_results_to_file
@@ -275,7 +277,7 @@ class VolatilityApp(ctk.CTk):
         file_path = filedialog.asksaveasfilename(
             title="Export",
             defaultextension=".csv",
-            filetypes=[("CSV files", "*.csv"), ("PDF files", "*.pdf")],
+            filetypes=[("CSV files", "*.csv"), ("PDF files", "*.pdf"), ("Text files", "*.txt")],
             initialdir=os.getcwd()
         )
         if file_path:
