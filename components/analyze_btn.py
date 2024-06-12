@@ -289,10 +289,6 @@ class VolatilityApp(ctk.CTk):
 
         self.tabview.set(tab_name)
 
-        save_button = ctk.CTkButton(tab_frame, text="Export", command=lambda: self.save_results(content),
-                                    fg_color="#E46F2E", text_color=self.text_dark,
-                                    hover_color=self.header_color, font=self.font, width=100)
-        save_button.pack(pady=10)
 
     def save_results(self, content):
         file_path = filedialog.asksaveasfilename(
@@ -312,7 +308,7 @@ class VolatilityApp(ctk.CTk):
         search_frame.pack(pady=10)
 
         search_entry = ctk.CTkEntry(search_frame, textvariable=search_var, fg_color=self.input_field_color,
-                                    text_color=self.text_bright, font=self.font, width=300)
+                                    text_color=self.text_bright, font=self.font, width=300, justify='center')
         search_entry.grid(row=0, column=0, padx=10, pady=10)
         search_entry.insert(0, "Enter Search")
         search_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, search_entry))
@@ -337,6 +333,12 @@ class VolatilityApp(ctk.CTk):
                                       hover_color=self.header_color, font=self.font, width=150)
         expand_button.grid(row=0, column=3, padx=10, pady=10)
 
+        save_button = ctk.CTkButton(search_frame, text="Export", command=lambda: self.save_results(content),
+                                    fg_color="#E46F2E", text_color=self.text_dark,
+                                    hover_color=self.header_color, font=self.font, width=100)
+        save_button.grid(row=0, column=4, padx=10, pady=10)
+
+
         tree_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
         tree_frame.pack(padx=10, pady=10, fill='both', expand=True)
         tree_frame.configure(height=400)
@@ -346,6 +348,7 @@ class VolatilityApp(ctk.CTk):
         text_widget.pack(padx=10, pady=10, fill='both', expand=True)
         text_widget.insert("1.0", content)
         text_widget.configure(state=tk.DISABLED)  # Make text read-only
+
 
         tree_frame.pack_propagate(False)
         self.expanded_frames[tree_frame] = False  # Initialize the expanded state
