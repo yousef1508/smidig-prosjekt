@@ -68,7 +68,7 @@ def change_theme(self, new_theme):
     if new_theme.lower() == "light":
         self.background_color = "#F3EDE4"
         self.header_color = "#D8D2CB"
-        self.button_color = "#C5BEB4"
+        self.button_color = "#62B4B7"
         self.textbox_color = "#EDE6DE"
         self.input_field_color = "#D0C7BF"
         self.text_bright = "#4B4A47"
