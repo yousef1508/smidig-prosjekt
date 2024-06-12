@@ -8,7 +8,7 @@ def select_file(self):
     file_path = filedialog.askopenfilename(
         title="Select a Memory Dump File",
         filetypes=[("Memory dump files", "*.vmem;*.dmp;*.img;*.bin;*.mem"), ("All files", "*.*")],
-        initialdir=os.getcwd()
+        initialdir=os.path.expanduser("~")  # Start at the user's home directory for better cross-platform compatibility
     )
     if file_path:
         self.file_path_var.set(file_path)
@@ -35,7 +35,7 @@ def get_volatility_plugins(self):
     context = contexts.Context()
 
     # Ensure we use the correct version of the volatility framework
-    framework.require_interface_version(2, 0, 0)
+    framework.require_interface_version(2, 7, 0)
 
     # Load the plugins
     plugins.__path__ = constants.PLUGINS_PATH

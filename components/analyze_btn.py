@@ -1,17 +1,22 @@
 import customtkinter as ctk
 from tkinter import filedialog, StringVar, messagebox, Text
-import tkinter as tk
 import os
 import queue
 import time
 import subprocess
 import threading
 import logging
-import settings
+import tkinter as tk
+import sys
 from help_btn import show_help
 from settings import (
     save_volatility_path,
     get_volatility_path,
+    load_settings,
+    save_settings,
+    show_settings_window,
+    change_theme,
+    apply_theme
 )
 from file_selection_helpers import (select_file, create_plugin_dropdown,
                                     update_plugin_dropdown, get_volatility_plugins, categorize_plugins)
@@ -49,6 +54,14 @@ class VolatilityApp(ctk.CTk):
         super().__init__()
         self.main_window_destroyed = False
         self.title("Volatility 3 Analysis Tool")
+
+        # Load settings
+        config = load_settings()
+        self.renderer_var = StringVar(value=config.get("renderer", "quick"))
+        self.verbose_var = ctk.BooleanVar(value=config.get("verbose", False))
+        self.VOLATILITY_PATH = config.get("VOLATILITY_PATH", get_volatility_path())
+
+
         self.setup_ui()
         self.tab_names = set()
         self.background_color = "#262626"
@@ -64,10 +77,9 @@ class VolatilityApp(ctk.CTk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure([0, 1, 2, 3, 4, 5, 6, 7, 8], weight=1)
         self.file_path_var = StringVar(value="No file selected")
-        self.renderer_var = StringVar(value="select output format")
         self.plugin_dropdown = None
         self.plugin_dropdown_var = StringVar(value="Load file to select plugin")
-        self.verbose_var = ctk.BooleanVar(value=False)
+
         self.tabview = ctk.CTkTabview(self)
         self.tabview.grid(row=8, column=0, columnspan=2, padx=20, pady=20, sticky="ew")
         header = ctk.CTkLabel(self, text="File Analysis", font=("Arial", 24, "bold"), text_color=self.text_bright,
@@ -111,53 +123,33 @@ class VolatilityApp(ctk.CTk):
         help_button = ctk.CTkButton(self, text="Help", command=show_help, fg_color=self.button_color,
                                     text_color=self.text_dark, hover_color="#5A9", font=self.font, width=70)
         help_button.grid(row=0, column=0, padx=10, pady=40, sticky="nw")
-        self.VOLATILITY_PATH = get_volatility_path()
+
         self.expanded_frames = {}  # Dictionary to track expanded frames
+
+    def load_and_apply_settings(self):
+        settings = load_settings()
+        self.renderer_var.set(settings.get("renderer", "quick"))
+        self.verbose_var.set(settings.get("verbose", False))
+        theme = settings.get("theme", "dark")
+        change_theme(self, theme)
 
     def setup_ui(self):
         self.file_path_var = StringVar(value="No file selected")
-        self.renderer_var = StringVar(value="quick")
         self.plugin_dropdown_var = StringVar(value="Load file to select plugin")
-        self.verbose_var = ctk.BooleanVar(value=False)
-
-        def change_theme(self, new_theme):
-            if new_theme.lower() == "light":
-                self.background_color = "#F3EDE4"
-                self.header_color = "#D8D2CB"
-                self.button_color = "#C5BEB4"
-                self.textbox_color = "#EDE6DE"
-                self.input_field_color = "#D0C7BF"
-                self.text_bright = "#4B4A47"
-                self.text_dark = "#FFFFFF"
-            else:
-                # Default to dark theme
-                self.background_color = "#262626"
-                self.header_color = "#222222"
-                self.button_color = "#A9DFD8"
-                self.textbox_color = "#647A77"
-                self.input_field_color = "#474747"
-                self.text_bright = "#F5F5F5"
-                self.text_dark = "#000000"
-            self.apply_theme()
 
     def apply_theme(self):
-        self.configure(bg=self.background_color)
-        self.tabview.configure(fg_color=self.background_color)
-        for widget in self.winfo_children():
-            if isinstance(widget, ctk.CTkLabel):
-                widget.configure(text_color=self.text_bright, bg_color=self.background_color)
-            elif isinstance(widget, ctk.CTkButton):
-                widget.configure(fg_color=self.button_color, text_color=self.text_dark, hover_color=self.header_color)
-            elif isinstance(widget, ctk.CTkFrame):
-                widget.configure(fg_color=self.background_color)
+        apply_theme(self)
+
+    def save_all_settings(self, renderer, verbose, theme):
+            save_settings(renderer, verbose)
+            change_theme(self, theme)
 
     def destroy(self):
         self.main_window_destroyed = True
         super().destroy()
 
     def show_settings_window(self):
-        if not self.main_window_destroyed:
-            settings.show_settings_window(self)
+        show_settings_window(self)
 
     def save_volatility_path(self, path):
         save_volatility_path(path)
@@ -196,7 +188,7 @@ class VolatilityApp(ctk.CTk):
     def show_progress_modal(self, file_path, plugin, renderer, verbose):
         self.cancel_flag = False
         self.modal_frame = ctk.CTkFrame(self, fg_color="#333333", corner_radius=10)
-        self.modal_frame.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.5, relheight=0.25)
+        self.modal_frame.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.3, relheight=0.25)
         header_label = ctk.CTkLabel(self.modal_frame, text="Analyzing...", font=("Arial", 18, "bold"),
                                     text_color="#FFFFFF")
         header_label.pack(pady=10)
@@ -240,7 +232,7 @@ class VolatilityApp(ctk.CTk):
             self.update_idletasks()
 
     def execute_volatility(self, file_path, plugin, renderer, verbose, progress_bar, progress_var):
-        command = ["python", self.VOLATILITY_PATH, "-r", renderer]
+        command = [sys.executable, self.VOLATILITY_PATH, "-r", renderer]
         if verbose:
             command.append("-v")
         command.extend(["-f", file_path, plugin])
@@ -307,7 +299,7 @@ class VolatilityApp(ctk.CTk):
         file_path = filedialog.asksaveasfilename(
             title="Export",
             defaultextension=".csv",
-            filetypes=[("CSV files", "*.csv"), ("PDF files", "*.pdf")],
+            filetypes=[("CSV files", "*.csv"), ("PDF files", "*.pdf"), ("Text files", "*.txt")],
             initialdir=os.getcwd()
         )
         if file_path:
@@ -364,6 +356,7 @@ class VolatilityApp(ctk.CTk):
             verbose_label = ctk.CTkLabel(tree_frame, text="Verbose Mode Activated", font=self.font,
                                          text_color="#FF0000")
             verbose_label.pack(pady=5)
+
     def clear_placeholder(self, event, entry):
         if entry.get() == "Enter Search":
             entry.delete(0, tk.END)
