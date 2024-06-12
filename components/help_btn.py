@@ -1,7 +1,11 @@
+# Import the messagebox module from tkinter for displaying message boxes
 from tkinter import messagebox
 
-
 def show_help():
+    """
+    Displays a help message box with instructions on how to use the Volatility 3 Analysis Tool.
+    """
+    # Define the help text with instructions and additional features
     help_text = """
 Welcome to the Volatility 3 Analysis Tool!
 
@@ -27,4 +31,5 @@ Additional Features:
 
 For more information, refer to the official Volatility 3 documentation.
     """
+    # Display the help text in an information message box
     messagebox.showinfo("Help", help_text)
