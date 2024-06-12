@@ -10,8 +10,8 @@ import logging # For logging
 import tkinter as tk # For Tkinter GUI functionalities
 import sys # For system-specific parameters and functions
 # Import custom modules and functions
-from help_btn import show_help
-from settings import (
+from components.help_btn import show_help
+from components.settings import (
     save_volatility_path,
     get_volatility_path,
     load_settings,
@@ -20,9 +20,9 @@ from settings import (
     change_theme,
     apply_theme
 )
-from file_selection_helpers import (select_file, create_plugin_dropdown,
+from components.file_selection_helpers import (select_file, create_plugin_dropdown,
                                     update_plugin_dropdown, get_volatility_plugins, categorize_plugins)
-from download_btn import save_results_to_file
+from components.download_btn import save_results_to_file
 
 # Set up logging configuration
 LOG_FILE = "app.log"
