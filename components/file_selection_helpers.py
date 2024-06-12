@@ -4,6 +4,7 @@ import os
 from volatility3.framework import contexts, constants
 from volatility3 import framework, plugins
 
+
 def select_file(self):
     file_path = filedialog.askopenfilename(
         title="Select a Memory Dump File",
@@ -13,6 +14,7 @@ def select_file(self):
     if file_path:
         self.file_path_var.set(file_path)
         self.update_plugin_dropdown(file_path)
+
 
 def create_plugin_dropdown(self, plugins, master):
     if self.plugin_dropdown:
@@ -24,11 +26,13 @@ def create_plugin_dropdown(self, plugins, master):
     )
     self.plugin_dropdown.pack(side="top", pady=(0, 10), anchor="center")
 
+
 def update_plugin_dropdown(self, file_path):
     plugins = self.get_volatility_plugins()
     categorized_plugins = self.categorize_plugins(plugins)
     self.create_plugin_dropdown(["Load file to select plugin"] + categorized_plugins, master=self.dropdown_frame)
     self.plugin_dropdown_var.set("Select plugin")
+
 
 def get_volatility_plugins(self):
     # Create a new context
@@ -48,6 +52,7 @@ def get_volatility_plugins(self):
     plugin_list = framework.list_plugins()
 
     return list(plugin_list.keys())
+
 
 def categorize_plugins(self, plugins):
     categories = {

@@ -61,7 +61,6 @@ class VolatilityApp(ctk.CTk):
         self.verbose_var = ctk.BooleanVar(value=config.get("verbose", False))
         self.VOLATILITY_PATH = config.get("VOLATILITY_PATH", get_volatility_path())
 
-
         self.setup_ui()
         self.tab_names = set()
         self.background_color = "#262626"
@@ -141,8 +140,8 @@ class VolatilityApp(ctk.CTk):
         apply_theme(self)
 
     def save_all_settings(self, renderer, verbose, theme):
-            save_settings(renderer, verbose)
-            change_theme(self, theme)
+        save_settings(renderer, verbose)
+        change_theme(self, theme)
 
     def destroy(self):
         self.main_window_destroyed = True

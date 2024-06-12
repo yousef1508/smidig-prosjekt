@@ -6,6 +6,7 @@ from reportlab.lib.units import inch
 from tkinter import messagebox
 import csv
 
+
 def save_results_to_file(output, file_path, file_format):
     """
     Saves the analysis results to a specified file.
@@ -49,6 +50,7 @@ def save_results_to_file(output, file_path, file_format):
         messagebox.showinfo("Success", f"Results successfully exported to {file_path}")
     except Exception as e:
         messagebox.showerror("Error", f"Error exporting results: {e}")
+
 
 def create_pdf(output, file_path):
     """
