@@ -11,7 +11,7 @@ This project is a GUI application designed to interface with Volatility 3, a mem
 
 # Requirements
 * Python 3.7 or higher
-* Required Python libraries: `tkinter`, `customtkinter`, `volatility3`
+* Required Python libraries: `tkinter`, `customtkinter`, `volatility3`, `reportlab`
 
 # Installation
 1. Clone the repository:
