@@ -17,7 +17,7 @@ This project is a GUI application designed to interface with Volatility 3, a mem
 1. Clone the repository:
     * git clone https://github.com/yousef1508/smidig-prosjekt.git
 2. Install the required dependencies:
-    * pip install -r requirements.txt
+    * pip install -r requirements.txt. 
 
 
 # Usage
