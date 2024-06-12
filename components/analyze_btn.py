@@ -25,23 +25,23 @@ logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG,
 
 def search_text(text_widget, search_var, content):
     search_term = search_var.get().lower()
-    text_widget.config(state=tk.NORMAL)  # Enable editing
+    text_widget.configure(state=tk.NORMAL)  # Enable editing
     text_widget.delete("1.0", tk.END)  # Clear the text widget
 
     for line in content.splitlines():
         if search_term in line.lower():
             text_widget.insert(tk.END, line + "\n")
-    text_widget.config(state=tk.DISABLED)  # Disable editing
+    text_widget.configure(state=tk.DISABLED)  # Disable editing
 
 
 def remove_search(text_widget, content, search_var):
     search_var.set("")
-    text_widget.config(state=tk.NORMAL)  # Enable editing
+    text_widget.configure(state=tk.NORMAL)  # Enable editing
     text_widget.delete("1.0", tk.END)  # Clear the text widget
 
     for line in content.splitlines():
         text_widget.insert(tk.END, line + "\n")
-    text_widget.config(state=tk.DISABLED)  # Disable editing
+    text_widget.configure(state=tk.DISABLED)  # Disable editing
 
 
 class VolatilityApp(ctk.CTk):
@@ -80,14 +80,22 @@ class VolatilityApp(ctk.CTk):
                                   bg_color=self.background_color)
         file_label.grid(row=2, column=0, columnspan=2, padx=20, pady=10, sticky="n")
         self.dropdown_frame = ctk.CTkFrame(self, fg_color=self.background_color)
-        self.dropdown_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=10, sticky="n")
+        self.dropdown_frame.grid(row=3, column=0, columnspan=2, padx=30, pady=10, sticky="n")
+
         renderer_dropdown = ctk.CTkOptionMenu(
             master=self.dropdown_frame, variable=self.renderer_var, values=["quick", "pretty"],
             fg_color=self.input_field_color, text_color=self.text_bright, button_color=self.button_color,
             button_hover_color=self.header_color, font=self.font, width=200
         )
-        self.create_plugin_dropdown(["Load file to select plugin"], master=self.dropdown_frame)
-        renderer_dropdown.pack(side="left", padx=(0, 20))
+        renderer_dropdown.pack(side="top", pady=(0, 25), anchor="center")
+
+        self.plugin_dropdown = ctk.CTkOptionMenu(
+            master=self.dropdown_frame, variable=self.plugin_dropdown_var, values=["Load file to select plugin"],
+            fg_color=self.input_field_color, text_color=self.text_bright, button_color=self.button_color,
+            button_hover_color=self.header_color, font=self.font, width=200
+        )
+        self.plugin_dropdown.pack(side="top", pady=(0, 10), anchor="center")
+
         verbose_checkbox = ctk.CTkCheckBox(
             self, text="Verbose", variable=self.verbose_var, onvalue=True, offvalue=False,
             fg_color=self.input_field_color, text_color=self.text_bright, font=self.font
@@ -112,6 +120,25 @@ class VolatilityApp(ctk.CTk):
         self.plugin_dropdown_var = StringVar(value="Load file to select plugin")
         self.verbose_var = ctk.BooleanVar(value=False)
 
+        def change_theme(self, new_theme):
+            if new_theme.lower() == "light":
+                self.background_color = "#F3EDE4"
+                self.header_color = "#D8D2CB"
+                self.button_color = "#C5BEB4"
+                self.textbox_color = "#EDE6DE"
+                self.input_field_color = "#D0C7BF"
+                self.text_bright = "#4B4A47"
+                self.text_dark = "#FFFFFF"
+            else:
+                # Default to dark theme
+                self.background_color = "#262626"
+                self.header_color = "#222222"
+                self.button_color = "#A9DFD8"
+                self.textbox_color = "#647A77"
+                self.input_field_color = "#474747"
+                self.text_bright = "#F5F5F5"
+                self.text_dark = "#000000"
+            self.apply_theme()
 
     def apply_theme(self):
         self.configure(bg=self.background_color)
@@ -218,6 +245,8 @@ class VolatilityApp(ctk.CTk):
             command.append("-v")
         command.extend(["-f", file_path, plugin])
 
+        print("Executing command:", " ".join(command))
+
         try:
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             total_steps = 100
@@ -235,6 +264,8 @@ class VolatilityApp(ctk.CTk):
             stdout, stderr = process.communicate()
             if process.returncode == 0:
                 content = stdout
+                if verbose:
+                    content = "Verbose mode enabled\n" + content
                 self.create_result_tab(plugin, renderer, content)
             else:
                 self.create_result_tab(plugin, renderer, f"Error: {stderr}")
@@ -290,7 +321,7 @@ class VolatilityApp(ctk.CTk):
         search_frame.pack(pady=10)
 
         search_entry = ctk.CTkEntry(search_frame, textvariable=search_var, fg_color=self.input_field_color,
-                                    text_color=self.text_bright, font=self.font, width=300, justify='center')
+                                    text_color=self.text_bright, font=self.font, width=300)
         search_entry.grid(row=0, column=0, padx=10, pady=10)
         search_entry.insert(0, "Enter Search")
         search_entry.bind("<FocusIn>", lambda event: self.clear_placeholder(event, search_entry))
@@ -307,7 +338,7 @@ class VolatilityApp(ctk.CTk):
                                              command=lambda: remove_search(text_widget, content, search_var),
                                              fg_color=self.button_color, text_color=self.text_dark,
                                              hover_color=self.header_color, font=self.font, width=150)
-        remove_search_button.grid(row=0, column=2, padx=10, pady=10)
+        remove_search_button.grid(row=0, column=2, padx=10, pady=3)
 
         expand_button = ctk.CTkButton(search_frame, text="Expand",
                                       command=lambda: self.expand_treeview(tree_frame, expand_button),
@@ -317,47 +348,31 @@ class VolatilityApp(ctk.CTk):
 
         tree_frame = ctk.CTkFrame(tab_frame, fg_color=self.background_color)
         tree_frame.pack(padx=10, pady=10, fill='both', expand=True)
-        tree_frame.configure(height=300)
+        tree_frame.configure(height=400)
 
-        # Create a Text widget with scrollbars
-        text_widget = Text(tree_frame, wrap="none", bg=self.background_color, fg=self.text_bright,
-                           font=("Courier New", 12), padx=8, pady=8)
-
-        # Create horizontal and vertical scrollbars using CTkScrollbar
-        h_scrollbar = ctk.CTkScrollbar(tree_frame, orientation="horizontal", command=text_widget.xview,
-                                       fg_color=self.input_field_color, button_color=self.button_color,
-                                       button_hover_color=self.header_color)
-        v_scrollbar = ctk.CTkScrollbar(tree_frame, orientation="vertical", command=text_widget.yview,
-                                       fg_color=self.input_field_color, button_color=self.button_color,
-                                       button_hover_color=self.header_color)
-
-        text_widget.configure(xscrollcommand=h_scrollbar.set, yscrollcommand=v_scrollbar.set)
-
-        # Place the text widget and scrollbars using grid
-        text_widget.grid(row=0, column=0, sticky='nsew')
-        v_scrollbar.grid(row=0, column=1, sticky='ns')
-        h_scrollbar.grid(row=1, column=0, sticky='ew')
-
-        # Configure the grid weights to make the text widget expandable
-        tree_frame.grid_rowconfigure(0, weight=1)
-        tree_frame.grid_columnconfigure(0, weight=1)
-
-        # Insert the content into the text widget and make it read-only
+        text_widget = Text(tree_frame, wrap="none", bg="#262626", fg="#F5F5F5", font=("Courier New", 10), padx=10,
+                           pady=10)
+        text_widget.pack(padx=10, pady=10, fill='both', expand=True)
         text_widget.insert("1.0", content)
-        text_widget.config(state=tk.DISABLED)
+        text_widget.configure(state=tk.DISABLED)  # Make text read-only
 
         tree_frame.pack_propagate(False)
-        self.expanded_frames[tree_frame] = False
+        self.expanded_frames[tree_frame] = False  # Initialize the expanded state
 
+        # Check for verbose mode indicator and add a label if it exists
+        if content.startswith("Verbose mode enabled"):
+            verbose_label = ctk.CTkLabel(tree_frame, text="Verbose Mode Activated", font=self.font,
+                                         text_color="#FF0000")
+            verbose_label.pack(pady=5)
     def clear_placeholder(self, event, entry):
         if entry.get() == "Enter Search":
             entry.delete(0, tk.END)
-            entry.config(fg=self.text_bright, justify='left')
+            entry.configure(text_color=self.text_bright)
 
     def add_placeholder(self, event, entry):
         if not entry.get():
             entry.insert(0, "Enter Search")
-            entry.config(fg="grey", justify='center')
+            entry.configure(text_color="grey")
 
     def expand_treeview(self, tree_frame, button):
         frame_id = id(tree_frame)

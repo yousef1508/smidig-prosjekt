@@ -1,6 +1,6 @@
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from tkinter import messagebox
@@ -62,34 +62,37 @@ def create_pdf(output, file_path):
     styles = getSampleStyleSheet()
     elements = []
 
-    # Split the output into lines and create table data
-    data = [line.split('\t') for line in output.splitlines()]
+    # Determine if the output is "quick" or "pretty"
+    if '\t' in output:
+        # Quick render (tab-separated values)
+        data = [line.split('\t') for line in output.splitlines()]
+        headers = data[0]
+        body = data[1:]
 
-    # Extract headers and data
-    headers = data[0]
-    body = data[1:]
+        # Define column widths (adjust these values based on your data)
+        col_widths = [1 * inch] * len(headers)
 
-    # Define column widths (adjust these values based on your data)
-    col_widths = [1 * inch] * len(headers)
+        # Create a table with the data
+        table = Table([headers] + body, colWidths=col_widths)
 
-    # Create a table with the data
-    table = Table([headers] + body, colWidths=col_widths)
+        # Add style to the table
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
 
-    # Add style to the table
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-        ('TEXTANGLE', (0, 0), (-1, 0), 45),  # Rotate header text
-    ]))
-
-    # Add the table to the elements
-    elements.append(table)
+        # Add the table to the elements
+        elements.append(table)
+    else:
+        # Pretty render (formatted text)
+        lines = output.splitlines()
+        for line in lines:
+            elements.append(Paragraph(line, styles['BodyText']))
 
     # Build the PDF
     doc.build(elements)

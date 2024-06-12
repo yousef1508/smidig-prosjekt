@@ -1,9 +1,8 @@
 import customtkinter as ctk
-from tkinter import filedialog, StringVar, messagebox, Text
+from tkinter import filedialog, StringVar
 import os
 from volatility3.framework import contexts, constants
 from volatility3 import framework, plugins
-
 
 def select_file(self):
     file_path = filedialog.askopenfilename(
@@ -15,7 +14,6 @@ def select_file(self):
         self.file_path_var.set(file_path)
         self.update_plugin_dropdown(file_path)
 
-
 def create_plugin_dropdown(self, plugins, master):
     if self.plugin_dropdown:
         self.plugin_dropdown.destroy()
@@ -24,15 +22,13 @@ def create_plugin_dropdown(self, plugins, master):
         text_color=self.text_bright, button_color=self.button_color, button_hover_color=self.header_color,
         font=self.font, width=200
     )
-    self.plugin_dropdown.pack(side="right", padx=(0, 20))  # Ensure spacing is maintained
-
+    self.plugin_dropdown.pack(side="top", pady=(0, 10), anchor="center")
 
 def update_plugin_dropdown(self, file_path):
     plugins = self.get_volatility_plugins()
     categorized_plugins = self.categorize_plugins(plugins)
     self.create_plugin_dropdown(["Load file to select plugin"] + categorized_plugins, master=self.dropdown_frame)
     self.plugin_dropdown_var.set("Select plugin")
-
 
 def get_volatility_plugins(self):
     # Create a new context
@@ -52,7 +48,6 @@ def get_volatility_plugins(self):
     plugin_list = framework.list_plugins()
 
     return list(plugin_list.keys())
-
 
 def categorize_plugins(self, plugins):
     categories = {
