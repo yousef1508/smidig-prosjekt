@@ -104,7 +104,7 @@ class VolatilityApp(ctk.CTk):
                               bg_color=self.background_color)
         header.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="n")
         # Create file selection button
-        file_button = ctk.CTkButton(self, text="Select File", command=self.select_file, fg_color="#E46F2E",
+        file_button = ctk.CTkButton(self, text="Select File", command=self.select_file, fg_color=self.button_color,
                                     text_color=self.text_dark, hover_color="#5A9", font=self.font, width=100)
         file_button.grid(row=1, column=0, columnspan=2, padx=20, pady=10, sticky="n")
         # Create file label
@@ -137,7 +137,7 @@ class VolatilityApp(ctk.CTk):
         verbose_checkbox.grid(row=4, column=0, columnspan=2, padx=20, pady=10, sticky="n")
 
         # Create the analyze button and place it on the grid
-        analyze_button = ctk.CTkButton(self, text="Analyze", command=self.run_analysis, fg_color="#E46F2E",
+        analyze_button = ctk.CTkButton(self, text="Analyze", command=self.run_analysis, fg_color=self.button_color,
                                        text_color=self.text_dark, hover_color="#5A9", font=self.font, width=100)
         analyze_button.grid(row=5, column=0, columnspan=2, padx=20, pady=10, sticky="n")
         # Create the settings button and place it on the grid
