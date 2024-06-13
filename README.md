@@ -12,10 +12,11 @@ This project is a GUI application designed to interface with Volatility 3, a mem
 # Requirements
 * Python 3.7 or higher
 * Required Python libraries: `tkinter`, `customtkinter`, `volatility3`, `reportlab`
+* memory dumpfile
 
 # Installation
 1. Clone the repository:
-    * git clone https://github.com/yousef1508/smidig-prosjekt.git
+    * git clone https://github.com/alez001/smidig-prosjekt.git 
 2. Install the required dependencies:
     * pip install -r requirements.txt. 
 
